@@ -7,9 +7,21 @@ namespace AbeServices.Common.Helpers
 {
     public class LocalHost
     {
-        public static string RandomFilename()
+        public static string GetRandomFilename()
         {
             return Path.GetTempFileName();
+        }
+
+        public static async Task<string> WriteFileAsync(byte[] fileData, string filePath = "")
+        {
+            if (String.IsNullOrEmpty(filePath))
+                filePath = GetRandomFilename();
+
+            using (var fs = new FileStream(filePath, FileMode.OpenOrCreate))
+            {
+                await fs.WriteAsync(fileData, 0, fileData.Length);
+                return filePath;
+            }
         }
 
         public static async Task<byte[]> ReadFileAsync(string filePath)

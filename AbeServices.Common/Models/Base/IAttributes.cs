@@ -1,4 +1,7 @@
 namespace AbeServices.Common.Models.Base
 {
-    public interface IAttributes { }
+    public interface IAttributes 
+    { 
+        string Get();
+    }
 }

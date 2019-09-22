@@ -10,8 +10,8 @@ namespace AbeServices.Common.Models.Mock
     {
         public async Task<SetupResult> Setup()
         {
-            var masterKeyFile = LocalHost.RandomFilename();
-            var publicKeyFile = LocalHost.RandomFilename();
+            var masterKeyFile = LocalHost.GetRandomFilename();
+            var publicKeyFile = LocalHost.GetRandomFilename();
 
             await LocalHost.RunProcessAsync("cpabe-setup", $"-p {publicKeyFile} -m {masterKeyFile}");
 
@@ -31,6 +31,27 @@ namespace AbeServices.Common.Models.Mock
             File.Delete(publicKeyFile);
 
             return setupResult;
+        }
+
+        public async Task<ISecretKey> Generate(IMasterKey masterKey, IPublicKey publicKey, IAttributes attributes)
+        {
+            var masterKeyFile = await LocalHost.WriteFileAsync(masterKey.Value);
+            var publicKeyFile = await LocalHost.WriteFileAsync(publicKey.Value);
+            var privateKeyFile = LocalHost.GetRandomFilename();
+
+            await LocalHost.RunProcessAsync("cpabe-keygen", $"-o {privateKeyFile} {publicKeyFile} {masterKeyFile} {attributes.Get()}");
+
+            var privateKeyBytes = await LocalHost.ReadFileAsync(privateKeyFile);
+
+            var privateKey = new MockSecretKey() {
+                Value = privateKeyBytes
+            };
+
+            File.Delete(masterKeyFile);
+            File.Delete(publicKeyFile);
+            File.Delete(privateKeyFile);
+
+            return privateKey;
         }
     }
 }

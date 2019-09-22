@@ -1,4 +1,7 @@
 namespace AbeServices.Common.Models.Base
 {
-    public interface IMasterKey { }
+    public interface IMasterKey 
+    { 
+        byte[] Value { get; }
+    }
 }
