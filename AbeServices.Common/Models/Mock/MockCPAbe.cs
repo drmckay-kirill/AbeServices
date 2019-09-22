@@ -118,6 +118,8 @@ namespace AbeServices.Common.Models.Mock
             }
             catch (Exception exception)
             {
+                if (exception.Message.Contains("cannot decrypt"))
+                    throw new UnathorizedAttributesAccessException();
                 throw new ABESchemeException("Error has occured during decryption", exception);
             }
         }
