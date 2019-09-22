@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using System.Text;
 using AbeServices.Common.Helpers;
 using System.IO;
 using AbeServices.Common.Models.Base;
@@ -66,6 +67,34 @@ namespace AbeServices.Common.Models.Mock
             catch (Exception exception)
             {
                 throw new ABESchemeException($"Error has occured during secret key generation: {attributes.Get()}", exception);
+            }
+        }
+
+        public async Task<ICipherText> Encrypt(string message, IPublicKey publicKey, IAccessPolicy accessPolicy)
+        {
+            try
+            {
+                var publicKeyFile = await LocalHost.WriteFileAsync(publicKey.Value);
+                var messageFile = await LocalHost.WriteFileAsync(Encoding.UTF8.GetBytes(message));
+                var encodedDataFile = LocalHost.GetRandomFilename();
+
+                await LocalHost.RunProcessAsync("cpabe-enc", $"-o {encodedDataFile} {publicKeyFile} {messageFile} \"{accessPolicy.AndGate()}\"");
+
+                var encodedDataBytes = await LocalHost.ReadFileAsync(encodedDataFile);
+
+                var encodedData = new MockCipherText() {
+                    Value = encodedDataBytes
+                };
+
+                File.Delete(publicKeyFile);
+                File.Delete(messageFile);
+                File.Delete(encodedDataFile);
+
+                return encodedData;
+            }
+            catch (Exception exception)
+            {
+                throw new ABESchemeException($"Error has occured during encryption: {accessPolicy.AndGate()}", exception);
             }
         }
     }

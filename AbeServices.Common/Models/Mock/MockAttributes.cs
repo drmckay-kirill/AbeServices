@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AbeServices.Common.Models.Mock
 {
-    public class MockAttributes : IAttributes
+    public class MockAttributes : IAttributes, IAccessPolicy
     {
 
         public MockAttributes()
@@ -21,6 +21,11 @@ namespace AbeServices.Common.Models.Mock
         public string Get()
         {
             return String.Join(" ", _attributes);
+        }
+
+        public string AndGate()
+        {
+            return String.Join(" and ", _attributes);
         }
 
         private List<string> _attributes; 

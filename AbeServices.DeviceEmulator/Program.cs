@@ -17,6 +17,9 @@ namespace AbeServices.DeviceEmulator
             var secret = await cpabe.Generate(keys.MasterKey, keys.PublicKey,
                                 new MockAttributes("test1 test2"));
 
+            var ct = await cpabe.Encrypt("some text", keys.PublicKey, 
+                                new MockAttributes("test1 test2"));
+
             Console.WriteLine("Finishing");
         }
     }

@@ -1,4 +1,7 @@
 namespace AbeServices.Common.Models.Base
 {
-    public interface IAccessPolicy { }
+    public interface IAccessPolicy 
+    { 
+        string AndGate();
+    }
 }
