@@ -8,7 +8,7 @@ using AbeServices.Common.Exceptions;
 
 namespace AbeServices.Common.Models.Mock
 {
-    public class MockCPAbe
+    public class MockCPAbe: ICPAbe
     {
         public async Task<SetupResult> Setup()
         {
