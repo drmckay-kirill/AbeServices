@@ -97,5 +97,29 @@ namespace AbeServices.Common.Models.Mock
                 throw new ABESchemeException($"Error has occured during encryption: {accessPolicy.AndGate()}", exception);
             }
         }
+
+        public async Task<string> Decrypt (ICipherText cipherText, IPublicKey publicKey, ISecretKey secretKey)
+        {
+            try
+            {
+                var cipherTextFile = await LocalHost.WriteFileAsync(cipherText.Value);
+                var publicKeyFile = await LocalHost.WriteFileAsync(publicKey.Value);
+                var secretKeyFile = await LocalHost.WriteFileAsync(secretKey.Value);
+                var messageFile = LocalHost.GetRandomFilename();
+
+                await LocalHost.RunProcessAsync("cpabe-dec", $"-o {messageFile} {publicKeyFile} {secretKeyFile} {cipherTextFile}");
+
+                var messageBytes = await LocalHost.ReadFileAsync(messageFile);
+
+                File.Delete(publicKeyFile);
+                File.Delete(secretKeyFile);
+
+                return Encoding.UTF8.GetString(messageBytes);
+            }
+            catch (Exception exception)
+            {
+                throw new ABESchemeException("Error has occured during decryption", exception);
+            }
+        }
     }
 }
