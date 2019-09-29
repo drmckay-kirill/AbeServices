@@ -11,6 +11,12 @@
             <input type="text" name="SharedKey">
         </div>
 
+        <label>Attributes</label>
+        @for(var i = 0; i < 3; i++)
+        {
+            <input type="text" name="Attributes[@i]">
+        }
+
         <button type="submit">Create</button>
 
     </form>
