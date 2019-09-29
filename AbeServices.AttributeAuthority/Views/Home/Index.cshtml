@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+@model LoginViewModel
+
+<div>
+    <table>
+        <thead>
+            <th>Name</th>
+            <th>Shared key</th>
+            <th>Attributes</th>
+        </thead>
+
+        @foreach (var login in @Model.Logins)
+        {
+            <tr>
+                <td>@login.Name</td>
+                <td>@login.SharedKey</td>
+                <td>@String.Join(" ", login.Attributes)</td>
+            </tr>
+        }
+
+    </table>
+</div>

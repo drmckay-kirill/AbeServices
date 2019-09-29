@@ -350,3 +350,17 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+Cookies
+Cookies-journal
+languagepacks.json
+machineid
+Network Persistent State
+rapid_render.json
+storage.json
+User
+Cache
+CachedData
+CachedExtensions
+GPUCache
+.vscode

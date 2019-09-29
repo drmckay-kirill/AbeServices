@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AbeServices.Common.Models.Mock;
-using AbeServices.Common.Models.Base;
 
 namespace AbeServices.DeviceEmulator
 {
