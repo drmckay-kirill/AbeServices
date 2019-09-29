@@ -12,4 +12,5 @@
 - checking for unique attribures in array for `Create action`
 - support for adding attributes to array in `Create view`
 - `Edit action` and `Edit page`
-- `Sinle page` with key events 
+- `Sinle page` with key events
+- `Delete action` for logins 
