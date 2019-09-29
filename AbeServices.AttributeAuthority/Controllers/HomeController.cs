@@ -32,6 +32,25 @@ namespace AbeServices.AttributeAuthority.Controllers
             return View(viewModel);
         }
 
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateLogin([FromForm] CreateLoginViewModel viewModel)
+        {
+            var login = new Login() 
+            {
+                Name = viewModel.Login,
+                SharedKey = viewModel.SharedKey,
+                Attributes = viewModel.Attributes ?? new string[] { "default" }
+            };
+            
+            await _logins.InsertOneAsync(login);
+            return RedirectToAction("Index", "Home");
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
