@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AbeServices.Common.Models.Mock;
+using AbeServices.Common.Protocols;
 using AbeServices.Common.Helpers;
 
 namespace AbeServices.DeviceEmulator
@@ -10,11 +11,13 @@ namespace AbeServices.DeviceEmulator
         static async Task Main(string[] args)
         {
             //await TestMockCpabe("Test Mock CP-ABE");
+            
             string key = "b14ca5898a4e4133bbce2ea2315a1916";
-            string message = "322_LOL_OMG";
-            var ct = SymmetricEncryption.EncryptString(key, message);
-            var res = SymmetricEncryption.DecryptToString(key, ct);
-            Console.WriteLine(res);
+            var encryptor = new DataSymmetricEncryption(key);
+            var serializer = new ProtobufDataSerializer();
+            var builder = new KeyDistributionBuilder(serializer, encryptor);
+            var data = builder.BuildStepOne(key, "device_emulator", "test", "test", new string[] { "test" });
+            
         }
 
         static async Task TestMockCpabe(string plainText)

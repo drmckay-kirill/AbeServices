@@ -5,20 +5,34 @@ using System.Text;
 
 namespace AbeServices.Common.Helpers
 {
-    public static class SymmetricEncryption
+    public class DataSymmetricEncryption: IDataSymmetricEncryptor
     {
-        public static byte[] EncryptString(string key, string plainText)
+        private string _key;
+
+        public DataSymmetricEncryption() { }
+
+        public DataSymmetricEncryption(string symmetricKey)
         {
-            return Encrypt(key, Encoding.UTF8.GetBytes(plainText));
+            _key = symmetricKey;
         }
 
-        public static string DecryptToString(string key, byte[] cipherText)
+        public void SetKey(string key)
         {
-            var res = Decrypt(key, cipherText);
+            _key = key;
+        }
+
+        public byte[] EncryptString(string plainText)
+        {
+            return Encrypt(Encoding.UTF8.GetBytes(plainText));
+        }
+
+        public string DecryptToString(byte[] cipherText)
+        {
+            var res = Decrypt(cipherText);
             return Encoding.UTF8.GetString(res);
         }
 
-        public static byte[] Encrypt(string key, byte[] plainText)  
+        public byte[] Encrypt(byte[] plainText)  
         {
             byte[] iv = new byte[16];
             using (var aes = Aes.Create())
@@ -27,7 +41,7 @@ namespace AbeServices.Common.Helpers
                 aes.BlockSize = 128;
                 aes.Padding = PaddingMode.Zeros;
 
-                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.Key = Encoding.UTF8.GetBytes(_key);
                 aes.IV = iv;
 
                 using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
@@ -46,7 +60,7 @@ namespace AbeServices.Common.Helpers
             }
         }
 
-        public static byte[] Decrypt(string key, byte[] cipherText)  
+        public byte[] Decrypt(byte[] cipherText)  
         {
             byte[] iv = new byte[16];
             using (var aes = Aes.Create())
@@ -55,7 +69,7 @@ namespace AbeServices.Common.Helpers
                 aes.BlockSize = 128;
                 aes.Padding = PaddingMode.Zeros;
 
-                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.Key = Encoding.UTF8.GetBytes(_key);
                 aes.IV = iv;
 
                 using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
