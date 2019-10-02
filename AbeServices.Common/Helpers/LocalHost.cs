@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AbeServices.Common.Helpers
 {
-    public class LocalHost
+    public static class LocalHost
     {
         public static string GetRandomFilename()
         {
