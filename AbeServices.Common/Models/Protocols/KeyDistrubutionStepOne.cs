@@ -3,7 +3,7 @@ using ProtoBuf;
 namespace AbeServices.Common.Models.Protocols
 {
     [ProtoContract]
-    public class KeyDistrubtionStepOne
+    public class KeyDistrubutionStepOne
     {
         [ProtoMember(1)]
         public string AbonentId { get; set; }

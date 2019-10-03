@@ -3,7 +3,7 @@ using ProtoBuf;
 namespace AbeServices.Common.Models.Protocols
 {
     [ProtoContract]
-    public class KeyDistributionStepOnePackage
+    public class KeyDistributionRequestPayload
     {
         // Идентификатор абонента, запрашивающего секретный ключ
         [ProtoMember(1)]

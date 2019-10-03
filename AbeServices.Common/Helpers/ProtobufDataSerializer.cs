@@ -9,9 +9,19 @@ namespace AbeServices.Common.Helpers
         {
             using (var ms = new MemoryStream())
             {
-                Serializer.Serialize(ms, data);
+                Serializer.SerializeWithLengthPrefix(ms, data, PrefixStyle.Fixed32);
                 return ms.ToArray();
             }
         }
+
+        public T Deserialize<T>(byte[] data)
+        {
+            using (var ms = new MemoryStream(data, 0, data.Length))
+            {
+                var res = Serializer.DeserializeWithLengthPrefix<T>(ms, PrefixStyle.Fixed32);
+                return res;
+            }
+        }
+
     }
 }

@@ -1,6 +1,7 @@
 # TODO
 ## Common
 - create ABE implementation instead mock objects
+- create builder for key distribution protocol
 ## Attribute Authority
 ### MVC part
 - make `Login.Name` unique (may be check before create)
@@ -16,3 +17,5 @@
 - `Edit action` and `Edit page`
 - `Sinle page` with key events
 - `Delete action` for logins 
+- Add abonent type to Login model (device or key service)
+- On start generate master keys in singlethon object for next key generation operations

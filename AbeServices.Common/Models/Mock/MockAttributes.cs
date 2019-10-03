@@ -18,6 +18,11 @@ namespace AbeServices.Common.Models.Mock
             _attributes.AddRange(attributes.Split(' '));
         }
 
+        public MockAttributes(string[] attributes)
+        {
+            _attributes.AddRange(attributes);
+        }
+
         public string Get()
         {
             return String.Join(" ", _attributes);

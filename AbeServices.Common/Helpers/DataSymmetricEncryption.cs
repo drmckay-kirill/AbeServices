@@ -39,6 +39,7 @@ namespace AbeServices.Common.Helpers
             {
                 aes.KeySize = 128;
                 aes.BlockSize = 128;
+                aes.Mode = CipherMode.CBC;
                 aes.Padding = PaddingMode.Zeros;
 
                 aes.Key = Encoding.UTF8.GetBytes(_key);
@@ -67,6 +68,7 @@ namespace AbeServices.Common.Helpers
             {
                 aes.KeySize = 128;
                 aes.BlockSize = 128;
+                aes.Mode = CipherMode.CBC;
                 aes.Padding = PaddingMode.Zeros;
 
                 aes.Key = Encoding.UTF8.GetBytes(_key);
