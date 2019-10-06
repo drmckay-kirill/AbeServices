@@ -14,36 +14,25 @@ namespace AbeServices.Common.Protocols
             _encryptor = encryptor;
         }
 
-        public KeyDistrubutionStepOne GetStepOne(byte[] data)
+        public T GetStepData<T>(byte[] data)
         {
-            return _serializer.Deserialize<KeyDistrubutionStepOne>(data);
+            return _serializer.Deserialize<T>(data);
         }
 
-        public KeyDistributionStepTwo GetStepTwo(byte[] data)
-        {
-            return _serializer.Deserialize<KeyDistributionStepTwo>(data);
-        }
-
-        public KeyDistributionStepThree GetStepThree(byte[] data)
-        {
-            return _serializer.Deserialize<KeyDistributionStepThree>(data);
-        }
-
-        public KeyDistributionRequestPayload GetRequestPayload(byte[] data, string key = null)
+        public T GetPayload<T>(byte[] data, string key = null)
         {
             if (!string.IsNullOrEmpty(key))
             {
                 _encryptor.SetKey(key);
                 var decryptedData = _encryptor.Decrypt(data);
-                return _serializer.Deserialize<KeyDistributionRequestPayload>(decryptedData);
+                return _serializer.Deserialize<T>(decryptedData);
             }
             else
             {
-                return _serializer.Deserialize<KeyDistributionRequestPayload>(data);
+                return _serializer.Deserialize<T>(data);
             }
         }
 
-        // Вызывается абонентом, запрашивающим ключ
         public byte[] BuildStepOne(string key, string abonentId, string keyServiceId, string authorityId, string[] abonentAttributes)
         {
             _encryptor.SetKey(key);
@@ -69,7 +58,6 @@ namespace AbeServices.Common.Protocols
             return serializedData;
         }
 
-        // Вызывается промежуточным сервисом раздачи ключей
         public byte[] BuildStepTwo(string key, string abonentId, string keyServiceId, string authorityId, string[] abonentAttributes, byte[] abonentPayload)
         {
             _encryptor.SetKey(key);
@@ -95,7 +83,6 @@ namespace AbeServices.Common.Protocols
             return serializedData;
         }
 
-        // Вызывается атрибутивным центром - центром генерации ключей
         public byte[] BuildStepThree(string abonentKey, string serviceKey, int abonentNonce, int serviceNonce, byte[] publicKey, byte[] secretKey)
         {
             _encryptor.SetKey(abonentKey);

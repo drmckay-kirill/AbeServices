@@ -24,8 +24,8 @@ namespace AbeServices.DeviceEmulator
             string authority = "test";
             string[] abonentAttributes = new string[] { "test" };
 
-            //var cpabe = new MockCPAbe();
-            //var keys = await cpabe.Setup();
+            var cpabe = new MockCPAbe();
+            var keys = await cpabe.Setup();
 
             var encryptor = new DataSymmetricEncryption();
             var serializer = new ProtobufDataSerializer();
@@ -33,12 +33,33 @@ namespace AbeServices.DeviceEmulator
 
             var firstStepData = builder.BuildStepOne(abonentKey, abonent, keyService, authority, abonentAttributes);
 
-            var deserializedFirstStep = builder.GetStepOne(firstStepData);
+            var deserializedFirstStep = builder.GetStepData<KeyDistrubutionStepOne>(firstStepData);
             var secondStepData = builder.BuildStepTwo(serviceKey, abonent, keyService, authority, abonentAttributes, deserializedFirstStep.Payload);
 
-            var deserializedSecondStep = builder.GetStepTwo(secondStepData);
-            var deserializedAbonentPayload = builder.GetRequestPayload(deserializedSecondStep.AbonentPayload, abonentKey);
-            var deserializedServicePayload = builder.GetRequestPayload(deserializedSecondStep.KeyServicePayload, serviceKey);
+            var deserializedSecondStep = builder.GetStepData<KeyDistributionStepTwo>(secondStepData);
+            var deserializedAbonentPayload = builder.GetPayload<KeyDistributionRequestPayload>(deserializedSecondStep.AbonentPayload, abonentKey);
+            var deserializedServicePayload = builder.GetPayload<KeyDistributionRequestPayload>(deserializedSecondStep.KeyServicePayload, serviceKey);
+            var secretKey = await cpabe.Generate(keys.MasterKey, keys.PublicKey, new MockAttributes(deserializedAbonentPayload.Attributes));
+            var thirdStepData = builder.BuildStepThree(abonentKey, serviceKey, 
+                    deserializedAbonentPayload.Nonce, deserializedServicePayload.Nonce,
+                    keys.PublicKey.Value, secretKey.Value);
+
+            var deserializedThirdStep = builder.GetStepData<KeyDistributionStepThree>(thirdStepData);
+            var abonentResult = builder.GetPayload<KeyDistributionAuthToAbonent>(deserializedThirdStep.AbonentPayload, abonentKey);
+            var serviceResult = builder.GetPayload<KeyDistributionAuthToService>(deserializedThirdStep.ServicePayload, serviceKey);
+
+            MockSecretKey abonentPrivateKey = new MockSecretKey();
+            abonentPrivateKey.Value = new byte[abonentResult.SecretKey.Length];
+            abonentResult.SecretKey.CopyTo(abonentPrivateKey.Value , 0);
+            
+            MockPublicKey authorityPublicKey = new MockPublicKey();
+            authorityPublicKey.Value = new byte[abonentResult.PublicKey.Length];
+            abonentResult.PublicKey.CopyTo(authorityPublicKey.Value, 0);
+
+            var ct = await cpabe.Encrypt("TestKeyDistributionBuilder", authorityPublicKey, 
+                                new MockAttributes(abonentAttributes));
+            string message = await cpabe.Decrypt(ct, authorityPublicKey, abonentPrivateKey);
+            Console.WriteLine(message);           
         }
 
         static async Task TestMockCpabe(string plainText)

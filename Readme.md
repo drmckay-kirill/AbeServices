@@ -1,7 +1,7 @@
 # TODO
 ## Common
 - create ABE implementation instead mock objects
-- create builder for key distribution protocol
+- create builder for key distribution protocol **DONE**
 ## Attribute Authority
 ### MVC part
 - make `Login.Name` unique (may be check before create)

@@ -20,6 +20,7 @@ namespace AbeServices.Common.Models.Mock
 
         public MockAttributes(string[] attributes)
         {
+            _attributes = new List<string>();
             _attributes.AddRange(attributes);
         }
 
