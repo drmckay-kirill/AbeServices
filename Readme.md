@@ -1,4 +1,6 @@
 # TODO
+## Key Service (for users of machines)
+- Exception handling with middleware (JSON)
 ## Common
 - create ABE implementation instead mock objects
 - create builder for key distribution protocol **DONE**

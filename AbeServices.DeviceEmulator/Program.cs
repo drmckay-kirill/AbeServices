@@ -12,7 +12,7 @@ namespace AbeServices.DeviceEmulator
         static async Task Main(string[] args)
         {
             //await TestMockCpabe("Test Mock CP-ABE");
-            await TestKeyDistributionBuilder();
+            //await TestKeyDistributionBuilder();
         }
 
         static async Task TestKeyDistributionBuilder()
