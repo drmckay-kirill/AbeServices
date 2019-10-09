@@ -1,32 +1,26 @@
 ﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using AbeServices.AttributeAuthority.Models;
 using AbeServices.AttributeAuthority.Models.ViewModels;
-using MongoDB.Driver;
+using AbeServices.AttributeAuthority.Services;
 
 namespace AbeServices.AttributeAuthority.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IMongoCollection<Login> _logins;
+        private readonly ILoginService _loginService;
 
-        public HomeController(IOptions<DatabaseSettings> settings)
+        public HomeController(ILoginService loginService)
         {
-            var client = new MongoClient(settings.Value.ConnectionString);
-            var database = client.GetDatabase(settings.Value.DatabaseName);
-            _logins = database.GetCollection<Login>(settings.Value.LoginCollectionName);
+            _loginService = loginService;
         }
 
         public async Task<IActionResult> Index()
         {
             var viewModel = new LoginViewModel() 
             {
-                Logins = await _logins
-                    .Find(login => true)
-                    .SortBy(login => login.Name)
-                    .ToListAsync()
+                Logins = await _loginService.GetList()
             };
 
             return View(viewModel);
@@ -40,14 +34,14 @@ namespace AbeServices.AttributeAuthority.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateLogin([FromForm] CreateLoginViewModel viewModel)
         {
-            var login = new Login() 
+            var login = new Login()
             {
                 Name = viewModel.Login,
                 SharedKey = viewModel.SharedKey,
                 Attributes = viewModel.Attributes ?? new string[] { "default" }
             };
             
-            await _logins.InsertOneAsync(login);
+            await _loginService.Create(login);
             return RedirectToAction("Index", "Home");
         }
 

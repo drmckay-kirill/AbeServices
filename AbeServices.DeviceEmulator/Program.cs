@@ -4,6 +4,7 @@ using AbeServices.Common.Models.Mock;
 using AbeServices.Common.Protocols;
 using AbeServices.Common.Helpers;
 using AbeServices.Common.Models.Protocols;
+using System.Net.Http;
 
 namespace AbeServices.DeviceEmulator
 {
@@ -13,6 +14,30 @@ namespace AbeServices.DeviceEmulator
         {
             //await TestMockCpabe("Test Mock CP-ABE");
             //await TestKeyDistributionBuilder();
+            await TestKeyDistributionService();
+        }
+
+        static async Task TestKeyDistributionService()
+        {
+            string keyServiceUrl = "http://localhost:5000/api/keys";
+            HttpClient client = new HttpClient();
+
+            string abonentKey = "b14ca5898a4e4133bbce2ea2315a1916";
+            string abonent = "device_emulator";
+            string keyService = "MachineService";
+            string authority = "AttributeAuthority";
+            string[] abonentAttributes = new string[] { "teapot", "iot", "science" };
+
+            var encryptor = new DataSymmetricEncryption();
+            var serializer = new ProtobufDataSerializer();
+            var builder = new KeyDistributionBuilder(serializer, encryptor);
+            
+            var firstRequestData = builder.BuildStepOne(abonentKey, abonent, keyService, authority, abonentAttributes);
+
+            var requestContent = new ByteArrayContent(firstRequestData);
+            var response = await client.PostAsync(keyServiceUrl, requestContent);
+            Console.WriteLine(response.StatusCode);
+            
         }
 
         static async Task TestKeyDistributionBuilder()

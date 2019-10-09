@@ -1,6 +1,8 @@
 # TODO
-## Key Service (for users of machines)
-- Exception handling with middleware (JSON)
+## Key Service (for users or machines)
+- exception handling with middleware (JSON)
+- remove logic from controller to special service
+- add swagger
 ## Common
 - create ABE implementation instead mock objects
 - create builder for key distribution protocol **DONE**
@@ -12,12 +14,16 @@
 - add length check for `Login.SharedKey`, it will be used in `SymmetricEncryption` helper (128 bytes AES key size for example)
 - add pretty UI
 - add role-based authorization for this app
-- remove Login access logic from `HomeController` to special service
+- remove Login access logic from `HomeController` to special service **DONE**
 - add validation in `HomeController` to POST methods
 - checking for unique attribures in array for `Create action`
 - support for adding attributes to array in `Create view`
 - `Edit action` and `Edit page`
 - `Sinle page` with key events
 - `Delete action` for logins 
-- Add abonent type to Login model (device or key service)
-- On start generate master keys in singlethon object for next key generation operations
+- add abonent type to Login model (device or key service)
+- generate master keys in singleton object for next key generation operations **DONE**
+- save key events on key generation
+- exception handling with middleware (JSON) for API
+- pagination in Login view and `HomeController`
+- add swagger for API

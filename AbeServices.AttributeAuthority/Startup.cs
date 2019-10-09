@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using AbeServices.AttributeAuthority.Models;
+using AbeServices.AttributeAuthority.Services;
+using AbeServices.Common.Protocols;
+using AbeServices.Common.Helpers;
 
 namespace AbeServices.AttributeAuthority
 {
@@ -20,6 +23,13 @@ namespace AbeServices.AttributeAuthority
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<DatabaseSettings>(Configuration.GetSection("DatabaseSettings"));
+            services.Configure<MainSettings>(Configuration.GetSection("Main"));
+
+            services.AddSingleton<ILoginService, LoginService>();
+            services.AddSingleton<IPrivateKeyGenerator, PrivateKeyGenerator>();
+            services.AddTransient<IDataSerializer, ProtobufDataSerializer>();
+            services.AddTransient<IDataSymmetricEncryptor, DataSymmetricEncryption>();
+            services.AddTransient<IKeyDistributionBuilder, KeyDistributionBuilder>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -37,7 +47,7 @@ namespace AbeServices.AttributeAuthority
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseMvc(routes =>
