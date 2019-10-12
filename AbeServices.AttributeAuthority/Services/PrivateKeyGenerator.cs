@@ -7,6 +7,7 @@ using AbeServices.Common.Protocols;
 using AbeServices.AttributeAuthority.Models;
 using AbeServices.Common.Models.Mock;
 using AbeServices.Common.Models.Base;
+using AbeServices.Common.Exceptions;
 
 namespace AbeServices.AttributeAuthority.Services
 {
@@ -43,25 +44,25 @@ namespace AbeServices.AttributeAuthority.Services
             var servicePayload = _builder.GetPayload<KeyDistributionRequestPayload>(authRequest.KeyServicePayload, keyService.SharedKey);
 
             if (abonentPayload.AttributeAuthorityId != _settings.Value.Name)
-                throw new ArgumentException("Invalid attribute authority id");
+                throw new ProtocolArgumentException("Incorrect attribute authority id");
 
             if (servicePayload.AttributeAuthorityId != _settings.Value.Name)
-                throw new ArgumentException("Invalid attribute authority id");
+                throw new ProtocolArgumentException("Incorrect attribute authority id");
 
             if (abonentPayload.AbonentId != servicePayload.AbonentId)
-                throw new ArgumentException("Invalid abonent id");
+                throw new ProtocolArgumentException("Incorrect abonent id");
 
             if (abonentPayload.KeyServiceId != servicePayload.KeyServiceId)
-                throw new ArgumentException("Invalid key service id");
+                throw new ProtocolArgumentException("Incorrect key service id");
 
             if (!abonentPayload.Attributes.SequenceEqual(servicePayload.Attributes))
-                throw new ArgumentException("Invalid attributes");
+                throw new ProtocolArgumentException("Incorrect attributes");
 
             if (abonentPayload.Attributes
                 .Where(attr => !abonent.Attributes.Contains(attr))
                 .Any())
             {
-                throw new ArgumentException("Attribute access error");   
+                throw new ProtocolArgumentException("Attribute access error");   
             }
             
             var secretKey = await cpabeCenter.Generate(masterKey, publicKey, new MockAttributes(abonentPayload.Attributes));

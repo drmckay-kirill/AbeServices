@@ -32,12 +32,32 @@ namespace AbeServices.DeviceEmulator
             var serializer = new ProtobufDataSerializer();
             var builder = new KeyDistributionBuilder(serializer, encryptor);
             
-            var firstRequestData = builder.BuildStepOne(abonentKey, abonent, keyService, authority, abonentAttributes);
+            var (firstRequestData, abonentNonce) = builder.BuildStepOne(abonentKey, abonent, keyService, authority, abonentAttributes);
+            Console.WriteLine($"Generated nonce = {abonentNonce}");
 
             var requestContent = new ByteArrayContent(firstRequestData);
             var response = await client.PostAsync(keyServiceUrl, requestContent);
-            Console.WriteLine(response.StatusCode);
+            Console.WriteLine($"Http response status code = {response.StatusCode}");
             
+            var responseData = await response.Content.ReadAsByteArrayAsync(); 
+            var payload = builder.GetPayload<KeyDistributionAuthToAbonent>(responseData, abonentKey);
+            Console.WriteLine($"Received nonce = {payload.Nonce}");
+
+            var cpabe = new MockCPAbe();
+
+            MockSecretKey abonentPrivateKey = new MockSecretKey();
+            abonentPrivateKey.Value = new byte[payload.SecretKey.Length];
+            payload.SecretKey.CopyTo(abonentPrivateKey.Value , 0);
+
+            MockPublicKey authorityPublicKey = new MockPublicKey();
+            authorityPublicKey.Value = new byte[payload.PublicKey.Length];
+            payload.PublicKey.CopyTo(authorityPublicKey.Value, 0);
+
+            var ct = await cpabe.Encrypt("TestKeyDistributionService", authorityPublicKey, 
+                                new MockAttributes(abonentAttributes));
+            string message = await cpabe.Decrypt(ct, authorityPublicKey, abonentPrivateKey);
+            Console.WriteLine(message);  
+
         }
 
         static async Task TestKeyDistributionBuilder()
@@ -56,10 +76,10 @@ namespace AbeServices.DeviceEmulator
             var serializer = new ProtobufDataSerializer();
             var builder = new KeyDistributionBuilder(serializer, encryptor);
 
-            var firstStepData = builder.BuildStepOne(abonentKey, abonent, keyService, authority, abonentAttributes);
+            var (firstStepData, abonenNonce) = builder.BuildStepOne(abonentKey, abonent, keyService, authority, abonentAttributes);
 
             var deserializedFirstStep = builder.GetStepData<KeyDistrubutionStepOne>(firstStepData);
-            var secondStepData = builder.BuildStepTwo(serviceKey, abonent, keyService, authority, abonentAttributes, deserializedFirstStep.Payload);
+            var (secondStepData, serviceNonce) = builder.BuildStepTwo(serviceKey, abonent, keyService, authority, abonentAttributes, deserializedFirstStep.Payload);
 
             var deserializedSecondStep = builder.GetStepData<KeyDistributionStepTwo>(secondStepData);
             var deserializedAbonentPayload = builder.GetPayload<KeyDistributionRequestPayload>(deserializedSecondStep.AbonentPayload, abonentKey);

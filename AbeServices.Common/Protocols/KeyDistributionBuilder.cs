@@ -33,9 +33,10 @@ namespace AbeServices.Common.Protocols
             }
         }
 
-        public byte[] BuildStepOne(string key, string abonentId, string keyServiceId, string authorityId, string[] abonentAttributes)
+        public (byte[], int) BuildStepOne(string key, string abonentId, string keyServiceId, string authorityId, string[] abonentAttributes)
         {
             _encryptor.SetKey(key);
+            var nonce = CryptoHelper.GetNonce();
 
             var payload = new KeyDistributionRequestPayload()
             {
@@ -43,7 +44,7 @@ namespace AbeServices.Common.Protocols
                 KeyServiceId = keyServiceId,
                 AttributeAuthorityId = authorityId,
                 Attributes = abonentAttributes,
-                Nonce = CryptoHelper.GetNonce()
+                Nonce = nonce
             };
             var serializedPayload = _serializer.Serialize<KeyDistributionRequestPayload>(payload);
             var encryptedPayload = _encryptor.Encrypt(serializedPayload);
@@ -55,12 +56,13 @@ namespace AbeServices.Common.Protocols
                 Payload = encryptedPayload
             };
             var serializedData = _serializer.Serialize<KeyDistrubutionStepOne>(stepData);
-            return serializedData;
+            return (serializedData, nonce);
         }
 
-        public byte[] BuildStepTwo(string key, string abonentId, string keyServiceId, string authorityId, string[] abonentAttributes, byte[] abonentPayload)
+        public (byte[], int) BuildStepTwo(string key, string abonentId, string keyServiceId, string authorityId, string[] abonentAttributes, byte[] abonentPayload)
         {
             _encryptor.SetKey(key);
+            var nonce = CryptoHelper.GetNonce();
 
             var servicePayload = new KeyDistributionRequestPayload()
             {
@@ -68,7 +70,7 @@ namespace AbeServices.Common.Protocols
                 KeyServiceId = keyServiceId,
                 AttributeAuthorityId = authorityId,
                 Attributes = abonentAttributes,
-                Nonce = CryptoHelper.GetNonce()
+                Nonce = nonce
             };
             var serializedServicePayload = _serializer.Serialize<KeyDistributionRequestPayload>(servicePayload);
             var encryptedServicePayload = _encryptor.Encrypt(serializedServicePayload);
@@ -80,7 +82,7 @@ namespace AbeServices.Common.Protocols
                 KeyServicePayload = encryptedServicePayload
             };
             var serializedData = _serializer.Serialize<KeyDistributionStepTwo>(stepData);
-            return serializedData;
+            return (serializedData, nonce);
         }
 
         public byte[] BuildStepThree(string abonentKey, string serviceKey, int abonentNonce, int serviceNonce, byte[] publicKey, byte[] secretKey)

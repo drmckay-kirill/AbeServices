@@ -24,6 +24,6 @@
 - add abonent type to Login model (device or key service)
 - generate master keys in singleton object for next key generation operations **DONE**
 - save key events on key generation
-- exception handling with middleware (JSON) for API
-- pagination in Login view and `HomeController`
+- exception handling with filter (JSON) for API (`KeysController`)
+- pagination in Login list view and `HomeController`
 - add swagger for API

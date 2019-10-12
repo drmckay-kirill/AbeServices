@@ -5,5 +5,6 @@ namespace AbeServices.KeyService.Settings
         public string Name { get; set; }
         public string Authority { get; set; }
         public string SharedKey { get; set;}
+        public string AuthorityUrl { get; set; }
     }
 }

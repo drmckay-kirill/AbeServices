@@ -17,14 +17,16 @@ namespace AbeServices.AttributeAuthority.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<byte[]>> Transfer()
+        public async Task<ActionResult> Transfer()
         {
             using (var ms = new MemoryStream())
             {
                 await Request.Body.CopyToAsync(ms);
                 var authRequest = ms.ToArray();
                 var authResponse = await _privateKeyGenerator.Generate(authRequest);
-                return authResponse;
+                
+                var res = new FileContentResult(authResponse, "application/octet-stream");
+                return res;
             }
         }
     }
