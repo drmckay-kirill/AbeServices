@@ -1,10 +1,12 @@
 # TODO
 ## IoTA
 - exception handling with middleware (JSON)
+- add validation to Entity model
+- add Swagger
 ## Key Service (for users or machines)
 - exception handling with middleware (JSON)
 - remove logic from controller to special service
-- add swagger
+- add Swagger
 ## Common
 - create ABE implementation instead mock objects
 - create builder for key distribution protocol **DONE**
@@ -28,4 +30,4 @@
 - save key events on key generation
 - exception handling with filter (JSON) for API (`KeysController`)
 - pagination in Login list view and `HomeController`
-- add swagger for API
+- add Swagger for API
