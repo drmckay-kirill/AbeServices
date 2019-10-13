@@ -1,4 +1,6 @@
 # TODO
+## IoTA
+- exception handling with middleware (JSON)
 ## Key Service (for users or machines)
 - exception handling with middleware (JSON)
 - remove logic from controller to special service
