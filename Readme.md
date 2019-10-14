@@ -3,6 +3,9 @@
 - exception handling with middleware (JSON)
 - add validation to Entity model
 - add Swagger
+- `FiwareController` to proxy data to Orion Context Broker with write access control
+- `FiwareController` reads data from Orion Context Broker with read access control
+- authorization filter for `FiwareController` (use `FiwareService`)
 ## Key Service (for users or machines)
 - exception handling with middleware (JSON)
 - remove logic from controller to special service

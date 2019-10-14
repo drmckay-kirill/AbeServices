@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AbeServices.IoTA.Settings;
 using AbeServices.IoTA.Services;
+using AbeServices.IoTA.Filters;
 
 namespace AbeServices.IoTA
 {
@@ -23,6 +24,8 @@ namespace AbeServices.IoTA
             services.Configure<DatabaseSettings>(Configuration.GetSection("Database"));
 
             services.AddTransient<IEntityService, EntityService>();
+            services.AddSingleton<IFiwareService, FiwareService>();
+            services.AddTransient<AbeWriteAccessAuthorizationFilter>();
 
             services.AddControllers();
         }
