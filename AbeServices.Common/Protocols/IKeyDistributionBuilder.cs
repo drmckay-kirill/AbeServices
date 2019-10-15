@@ -1,5 +1,3 @@
-using AbeServices.Common.Models.Protocols;
-
 namespace AbeServices.Common.Protocols
 {
     public interface IKeyDistributionBuilder

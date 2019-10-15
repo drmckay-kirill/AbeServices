@@ -1,7 +1,10 @@
+using System;
+using System.Threading.Tasks;
+
 namespace AbeServices.IoTA.Services
 {
     public interface IFiwareService
     {
-        byte[] Authorize(string entityName, string sessionId, byte[] body, bool read);  
+        Task<(byte[], Guid)> Authorize(string entityName, string sessionId, byte[] body, bool read);  
     }
 }
