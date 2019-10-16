@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbeServices.KeyService", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbeServices.IoTA", "AbeServices.IoTA\AbeServices.IoTA.csproj", "{172BCF2B-ED36-4AB1-B97D-3EAF364F4984}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbeServices.TokenGeneration", "AbeServices.TokenGeneration\AbeServices.TokenGeneration.csproj", "{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,5 +88,17 @@ Global
 		{172BCF2B-ED36-4AB1-B97D-3EAF364F4984}.Release|x64.Build.0 = Release|Any CPU
 		{172BCF2B-ED36-4AB1-B97D-3EAF364F4984}.Release|x86.ActiveCfg = Release|Any CPU
 		{172BCF2B-ED36-4AB1-B97D-3EAF364F4984}.Release|x86.Build.0 = Release|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Debug|x64.Build.0 = Debug|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Debug|x86.Build.0 = Debug|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Release|x64.ActiveCfg = Release|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Release|x64.Build.0 = Release|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Release|x86.ActiveCfg = Release|Any CPU
+		{4A36ED62-FA3D-4DD3-A7B9-3C9EF8FD8ADA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

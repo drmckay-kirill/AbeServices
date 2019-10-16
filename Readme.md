@@ -1,4 +1,6 @@
 # TODO
+## TokenGenerationService
+- exception handling with middleware (JSON)
 ## IoTA
 - exception handling with middleware (JSON)
 - add validation to Entity model
