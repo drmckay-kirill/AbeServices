@@ -6,13 +6,13 @@ namespace AbeServices.TokenGeneration.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class TokenController : ControllerBase
+    public class TokensController : ControllerBase
     {
-        private readonly ITokenService _tokenService;
+        private readonly ITokensService _tokensService;
 
-        public TokenController(ITokenService tokenService)
+        public TokensController(ITokensService tokensService)
         {
-            _tokenService = tokenService;
+            _tokensService = tokensService;
         }
 
         [HttpPost]

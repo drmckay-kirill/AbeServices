@@ -14,7 +14,26 @@ namespace AbeServices.DeviceEmulator
         {
             //await TestMockCpabe("Test Mock CP-ABE");
             //await TestKeyDistributionBuilder();
-            await TestKeyDistributionService();
+            //await TestKeyDistributionService();
+            await TestAbeAuth();
+        }
+
+        static async Task TestAbeAuth()
+        {
+            HttpClient client = new HttpClient();
+            var builder = new AbeAuthBuilder(new ProtobufDataSerializer());
+
+            string[] abonentAttributes = new string[] { "teapot", "iot", "science" };
+            string entityName = "teapot2";
+            string iotaUrl = $"http://localhost:5010/api/fiware/{entityName}";
+            
+            var initRequest = new byte[] { 0 }; // TODO replace to FIWARE NGSI
+
+            var stepOneResponse = await client.PostAsync(iotaUrl, new ByteArrayContent(initRequest));
+            Console.WriteLine($"First step Http response status code = {stepOneResponse.StatusCode}");
+            var stepOneData = await stepOneResponse.Content.ReadAsByteArrayAsync();
+            var stepOne = builder.GetStepData<AbeAuthStepOne>(stepOneData);
+            Console.WriteLine($"Access policy: {String.Join(" ", stepOne.AccessPolicy)}");
         }
 
         static async Task TestKeyDistributionService()

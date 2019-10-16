@@ -12,6 +12,11 @@ namespace AbeServices.Common.Protocols
             _serializer = serializer;
         }
 
+        public T GetStepData<T>(byte[] data)
+        {
+            return _serializer.Deserialize<T>(data);
+        }
+
         public byte[] BuildStepOne(string[] accessPolicy, string sharedKey)
         {
             var hash = CryptoHelper.ComputeHash($"{string.Join("", accessPolicy)}{sharedKey}");

@@ -26,7 +26,7 @@ namespace AbeServices.TokenGeneration
 
             services.AddTransient<IDataSerializer, ProtobufDataSerializer>();
             services.AddTransient<IAbeAuthBuilder, AbeAuthBuilder>();
-            services.AddSingleton<ITokenService, TokenService>();
+            services.AddSingleton<ITokensService, TokensService>();
 
             services.AddControllers();
         }

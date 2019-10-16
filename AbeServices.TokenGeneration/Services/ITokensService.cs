@@ -1,6 +1,6 @@
 namespace AbeServices.TokenGeneration.Services
 {
-    public interface ITokenService
+    public interface ITokensService
     {
          
     }
