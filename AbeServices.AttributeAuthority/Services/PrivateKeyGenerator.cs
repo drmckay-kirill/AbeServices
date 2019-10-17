@@ -31,6 +31,12 @@ namespace AbeServices.AttributeAuthority.Services
             cpabeCenter = new MockCPAbe();
         }
 
+        public async Task<byte[]> GetPublickKey()
+        {
+            await CheckKeys();
+            return publicKey.Value;
+        }
+
         public async Task<byte[]> Generate(byte[] data)
         {
             await CheckKeys();

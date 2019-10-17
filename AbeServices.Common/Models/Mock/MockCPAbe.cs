@@ -70,12 +70,12 @@ namespace AbeServices.Common.Models.Mock
             }
         }
 
-        public async Task<ICipherText> Encrypt(string message, IPublicKey publicKey, IAccessPolicy accessPolicy)
+        public async Task<ICipherText> Encrypt(byte[] data, IPublicKey publicKey, IAccessPolicy accessPolicy)
         {
             try
             {
                 var publicKeyFile = await LocalHost.WriteFileAsync(publicKey.Value);
-                var messageFile = await LocalHost.WriteFileAsync(Encoding.UTF8.GetBytes(message));
+                var messageFile = await LocalHost.WriteFileAsync(data);
                 var encodedDataFile = LocalHost.GetRandomFilename();
 
                 await LocalHost.RunProcessAsync("cpabe-enc", $"-o {encodedDataFile} {publicKeyFile} {messageFile} \"{accessPolicy.AndGate()}\"");
@@ -96,6 +96,11 @@ namespace AbeServices.Common.Models.Mock
             {
                 throw new ABESchemeException($"Error has occured during encryption: {accessPolicy.AndGate()}", exception);
             }
+        }
+
+        public async Task<ICipherText> Encrypt(string message, IPublicKey publicKey, IAccessPolicy accessPolicy)
+        {
+            return await Encrypt(Encoding.UTF8.GetBytes(message), publicKey, accessPolicy);
         }
 
         public async Task<string> Decrypt (ICipherText cipherText, IPublicKey publicKey, ISecretKey secretKey)

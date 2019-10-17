@@ -20,12 +20,13 @@ namespace AbeServices.DeviceEmulator
 
         static async Task TestAbeAuth()
         {
-            HttpClient client = new HttpClient();
-            var builder = new AbeAuthBuilder(new ProtobufDataSerializer());
-
+            string[] tgsAttr = new string[] { "token", "service" };
             string[] abonentAttributes = new string[] { "teapot", "iot", "science" };
             string entityName = "teapot2";
             string iotaUrl = $"http://localhost:5010/api/fiware/{entityName}";
+            
+            HttpClient client = new HttpClient();
+            var builder = new AbeAuthBuilder(new ProtobufDataSerializer());
             
             var initRequest = new byte[] { 0 }; // TODO replace to FIWARE NGSI
 
@@ -34,6 +35,7 @@ namespace AbeServices.DeviceEmulator
             var stepOneData = await stepOneResponse.Content.ReadAsByteArrayAsync();
             var stepOne = builder.GetStepData<AbeAuthStepOne>(stepOneData);
             Console.WriteLine($"Access policy: {String.Join(" ", stepOne.AccessPolicy)}");
+
         }
 
         static async Task TestKeyDistributionService()

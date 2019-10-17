@@ -16,6 +16,13 @@ namespace AbeServices.AttributeAuthority.Controllers
             _privateKeyGenerator = privateKeyGenerator;
         }
 
+        [HttpGet("public")]
+        public async Task<ActionResult> GetPublickKey()
+        {
+            var res = await _privateKeyGenerator.GetPublickKey();
+            return new FileContentResult(res, "application/octet-stream");
+        }
+
         [HttpPost]
         public async Task<ActionResult> Transfer()
         {

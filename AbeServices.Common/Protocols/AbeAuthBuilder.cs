@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using AbeServices.Common.Helpers;
 using AbeServices.Common.Models.Protocols;
 
@@ -5,7 +7,7 @@ namespace AbeServices.Common.Protocols
 {
     public class AbeAuthBuilder : IAbeAuthBuilder
     {
-        private IDataSerializer _serializer;
+        private readonly IDataSerializer _serializer;
 
         public AbeAuthBuilder(IDataSerializer serializer)
         {
@@ -26,6 +28,20 @@ namespace AbeServices.Common.Protocols
                 Z = hash
             };
             return _serializer.Serialize<AbeAuthStepOne>(payload);
+        }
+
+        public async Task<(byte[], int)> BuildStepTwo(string[] accessPolicy, string[] abonentAttr, string[] tgsAttr, byte[] Z)
+        {
+            int nonce = CryptoHelper.GetNonce();
+            var payload = new AbeAuthStepTwo()
+            {
+                AccessPolicy = accessPolicy,
+                AbonentAttributes = abonentAttr,
+                CT = null,
+                Z = Z
+            };
+            var res = _serializer.Serialize<AbeAuthStepTwo>(payload);
+            return (res, nonce);
         }
     }
 }

@@ -1,4 +1,9 @@
 # TODO
+## AbeAuth flow
+- TGS get keys through protocol (special service for gettings keys and make abe things)
+- inject MockCpAbe (or encrypted data) to AbeAuthBuilder
+- send second step from abonent to tgs
+- process second step in tgs 
 ## TokenGenerationService
 - exception handling with middleware (JSON)
 ## IoTA
