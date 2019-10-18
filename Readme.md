@@ -1,9 +1,4 @@
 # TODO
-## AbeAuth flow
-- TGS get keys through protocol (special service for gettings keys and make abe things)
-- inject MockCpAbe (or encrypted data) to AbeAuthBuilder
-- send second step from abonent to tgs
-- process second step in tgs 
 ## TokenGenerationService
 - exception handling with middleware (JSON)
 ## IoTA
@@ -41,3 +36,13 @@
 - exception handling with filter (JSON) for API (`KeysController`)
 - pagination in Login list view and `HomeController`
 - add Swagger for API
+## AbeAuth flow
+- TGS get keys through protocol (special service for gettings keys and make abe things) - KeyService Url from settings **DONE**
+- inject MockCpAbe to AbeAuthBuilder **DONE**
+- send second step from abonent to tgs
+- process second step in tgs 
+- send third step from abonent to tgs
+- process third step in tgs
+- send fourth step from abonent to iota
+- process fourth step
+- send data to fiware

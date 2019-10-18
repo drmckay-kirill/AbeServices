@@ -1,7 +1,6 @@
 ﻿using AbeServices.TokenGeneration.Services;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace AbeServices.TokenGeneration.Controllers
 {
     [ApiController]

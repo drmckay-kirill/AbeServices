@@ -103,7 +103,7 @@ namespace AbeServices.Common.Models.Mock
             return await Encrypt(Encoding.UTF8.GetBytes(message), publicKey, accessPolicy);
         }
 
-        public async Task<string> Decrypt (ICipherText cipherText, IPublicKey publicKey, ISecretKey secretKey)
+        public async Task<byte[]> DecryptToBytes(ICipherText cipherText, IPublicKey publicKey, ISecretKey secretKey)
         {
             try
             {
@@ -119,14 +119,20 @@ namespace AbeServices.Common.Models.Mock
                 File.Delete(publicKeyFile);
                 File.Delete(secretKeyFile);
 
-                return Encoding.UTF8.GetString(messageBytes);
+                return messageBytes;
             }
             catch (Exception exception)
             {
                 if (exception.Message.Contains("cannot decrypt"))
                     throw new UnathorizedAttributesAccessException();
                 throw new ABESchemeException("Error has occured during decryption", exception);
-            }
+            }           
+        }
+
+        public async Task<string> Decrypt (ICipherText cipherText, IPublicKey publicKey, ISecretKey secretKey)
+        {
+            var res = await DecryptToBytes(cipherText, publicKey, secretKey);
+            return Encoding.UTF8.GetString(res);
         }
     }
 }

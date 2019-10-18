@@ -7,6 +7,7 @@ using AbeServices.TokenGeneration.Settings;
 using AbeServices.TokenGeneration.Services;
 using AbeServices.Common.Helpers;
 using AbeServices.Common.Protocols;
+using AbeServices.Common.Models;
 
 namespace AbeServices.TokenGeneration
 {
@@ -23,7 +24,10 @@ namespace AbeServices.TokenGeneration
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<MainSettings>(Configuration.GetSection("Main"));
+            services.Configure<AbeSettings>(Configuration.GetSection("AbeSettings"));
 
+            services.AddTransient<IKeyDistributionBuilder, KeyDistributionBuilder>();
+            services.AddTransient<IAbeDecorator, AbeDecorator>();
             services.AddTransient<IDataSerializer, ProtobufDataSerializer>();
             services.AddTransient<IAbeAuthBuilder, AbeAuthBuilder>();
             services.AddSingleton<ITokensService, TokensService>();

@@ -2,6 +2,6 @@ namespace AbeServices.Common.Models.Base
 {
     public interface ISecretKey 
     { 
-        byte[] Value { get; }
+        byte[] Value { get; set; }
     }
 }
