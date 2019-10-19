@@ -20,13 +20,24 @@ namespace AbeServices.DeviceEmulator
 
         static async Task TestAbeAuth()
         {
+            HttpClient client = new HttpClient();
+                   
             string[] tgsAttr = new string[] { "token", "service" };
+            
+            string abonentKey = "b14ca5898a4e4133bbce2ea2315a1916";
+            string abonent = "device_emulator";
             string[] abonentAttributes = new string[] { "teapot", "iot", "science" };
             string entityName = "teapot2";
+        
+            string keyService = "MachineService";
+            string authority = "AttributeAuthority";
+
+            string tgsUrl = "http://localhost:5011/api/tokens";
             string iotaUrl = $"http://localhost:5010/api/fiware/{entityName}";
+            string keyServiceUrl = "http://localhost:5000/api/keys";
             
-            HttpClient client = new HttpClient();
-            var builder = new AbeAuthBuilder(new ProtobufDataSerializer());
+            var decorator = AbeDecorator.Factory.Create(abonentKey, abonent, keyService, authority, abonentAttributes, keyServiceUrl);
+            var builder = new AbeAuthBuilder(new ProtobufDataSerializer(), decorator);
             
             var initRequest = new byte[] { 0 }; // TODO replace to FIWARE NGSI
 
@@ -35,6 +46,11 @@ namespace AbeServices.DeviceEmulator
             var stepOneData = await stepOneResponse.Content.ReadAsByteArrayAsync();
             var stepOne = builder.GetStepData<AbeAuthStepOne>(stepOneData);
             Console.WriteLine($"Access policy: {String.Join(" ", stepOne.AccessPolicy)}");
+
+            var (stepTwoData, nonceR1) = await builder.BuildStepTwo(stepOne.AccessPolicy, abonentAttributes, tgsAttr, stepOne.Z);
+            var stepTwoRequest = new ByteArrayContent(stepTwoData);
+            var stepTwoResponse = await client.PostAsync(tgsUrl, stepTwoRequest);
+            Console.WriteLine($"Second step Http response status code = {stepTwoResponse.StatusCode}");
 
         }
 

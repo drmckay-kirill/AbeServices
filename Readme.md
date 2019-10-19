@@ -13,6 +13,7 @@
 - remove logic from controller to special service
 - add Swagger
 ## Common
+- all protocol builder dependencies from Startup files to one extension **DONE**
 - create ABE implementation instead mock objects
 - create builder for key distribution protocol **DONE**
 ## Attribute Authority
@@ -39,7 +40,8 @@
 ## AbeAuth flow
 - TGS get keys through protocol (special service for gettings keys and make abe things) - KeyService Url from settings **DONE**
 - inject MockCpAbe to AbeAuthBuilder **DONE**
-- send second step from abonent to tgs
+- send second step from abonent to tgs **DONE**
+- sessions in tgs
 - process second step in tgs 
 - send third step from abonent to tgs
 - process third step in tgs

@@ -5,9 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using AbeServices.TokenGeneration.Settings;
 using AbeServices.TokenGeneration.Services;
-using AbeServices.Common.Helpers;
-using AbeServices.Common.Protocols;
 using AbeServices.Common.Models;
+using AbeServices.Common.Extensions;
 
 namespace AbeServices.TokenGeneration
 {
@@ -26,10 +25,7 @@ namespace AbeServices.TokenGeneration
             services.Configure<MainSettings>(Configuration.GetSection("Main"));
             services.Configure<AbeSettings>(Configuration.GetSection("AbeSettings"));
 
-            services.AddTransient<IKeyDistributionBuilder, KeyDistributionBuilder>();
-            services.AddTransient<IAbeDecorator, AbeDecorator>();
-            services.AddTransient<IDataSerializer, ProtobufDataSerializer>();
-            services.AddTransient<IAbeAuthBuilder, AbeAuthBuilder>();
+            services.ConfigureProtocolBuilders();
             services.AddSingleton<ITokensService, TokensService>();
 
             services.AddControllers();

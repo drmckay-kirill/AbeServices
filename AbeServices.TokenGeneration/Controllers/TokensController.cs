@@ -1,10 +1,12 @@
 ﻿using AbeServices.TokenGeneration.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace AbeServices.TokenGeneration.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class TokensController : ControllerBase
     {
         private readonly ITokensService _tokensService;
@@ -15,9 +17,12 @@ namespace AbeServices.TokenGeneration.Controllers
         }
 
         [HttpPost]
-        public ActionResult GenerateToken()
+        public async Task<ActionResult> GenerateToken()
         {
-            
+            using (var ms = new MemoryStream())
+            {
+                await Request.Body.CopyToAsync(ms);
+            }
 
             return Ok();
         }

@@ -6,8 +6,8 @@ using Microsoft.Extensions.Hosting;
 using AbeServices.IoTA.Settings;
 using AbeServices.IoTA.Services;
 using AbeServices.IoTA.Filters;
-using AbeServices.Common.Helpers;
-using AbeServices.Common.Protocols;
+using AbeServices.Common.Extensions;
+using AbeServices.Common.Models;
 
 namespace AbeServices.IoTA
 {
@@ -25,9 +25,9 @@ namespace AbeServices.IoTA
         {
             services.Configure<DatabaseSettings>(Configuration.GetSection("Database"));
             services.Configure<MainSettings>(Configuration.GetSection("Main"));
+            services.Configure<AbeSettings>(Configuration.GetSection("AbeSettings"));
 
-            services.AddTransient<IDataSerializer, ProtobufDataSerializer>();
-            services.AddTransient<IAbeAuthBuilder, AbeAuthBuilder>();
+            services.ConfigureProtocolBuilders();
             services.AddTransient<IEntityService, EntityService>();
             services.AddSingleton<IFiwareService, FiwareService>();
             services.AddTransient<AbeWriteAccessAuthorizationFilter>();
