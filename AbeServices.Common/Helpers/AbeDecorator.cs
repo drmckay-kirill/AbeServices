@@ -57,10 +57,13 @@ namespace AbeServices.Common.Helpers
             KeyServiceId = _options.Value.KeyServiceId;
             AuthorityId = _options.Value.AuthorityId;
             Attributes = _options.Value.Attributes;
+            KeyServiceUrl = _options.Value.KeyServiceUrl;
         }
 
         public async Task<byte[]> Encrypt(byte[] data, string[] accessStructure)
-        {
+        {   
+            await Setup();
+
             var accessPolicy = new MockAttributes(accessStructure);
             var cipherText = await cpabeCenter.Encrypt(data, publicKey, accessPolicy);
             return cipherText.Value;
@@ -68,6 +71,8 @@ namespace AbeServices.Common.Helpers
 
         public async Task<byte[]> Decrypt(byte[] data)
         {
+            await Setup();
+
             var cipherText = new MockCipherText();
             cipherText.Value = new byte[data.Length];
             data.CopyTo(cipherText.Value, 0);

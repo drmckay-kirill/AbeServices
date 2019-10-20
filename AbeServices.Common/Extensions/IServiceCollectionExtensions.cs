@@ -8,12 +8,12 @@ namespace AbeServices.Common.Extensions
     {
         public static IServiceCollection ConfigureProtocolBuilders(this IServiceCollection services)
         {
-            services.AddTransient<IDataSymmetricEncryptor, DataSymmetricEncryption>();
-            services.AddTransient<IDataSerializer, ProtobufDataSerializer>();
-            services.AddTransient<IKeyDistributionBuilder, KeyDistributionBuilder>();
+            services.AddSingleton<IDataSymmetricEncryptor, DataSymmetricEncryption>();
+            services.AddSingleton<IDataSerializer, ProtobufDataSerializer>();
+            services.AddSingleton<IKeyDistributionBuilder, KeyDistributionBuilder>();
             
-            services.AddTransient<IAbeDecorator, AbeDecorator>();           
-            services.AddTransient<IAbeAuthBuilder, AbeAuthBuilder>();
+            services.AddSingleton<IAbeDecorator, AbeDecorator>();           
+            services.AddSingleton<IAbeAuthBuilder, AbeAuthBuilder>();
             
             return services;
         }

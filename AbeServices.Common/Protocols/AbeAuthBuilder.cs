@@ -50,5 +50,34 @@ namespace AbeServices.Common.Protocols
             var res = _serializer.Serialize<AbeAuthStepTwo>(payload);
             return (res, nonce);
         }
+
+        public async Task<(byte[], int, int)> BuildStepThree(string[] accessPolicy, string[] abonentAttr, int nonce)
+        {
+            await _abeDecorator.Setup();
+
+            var nonceAbonent = CryptoHelper.GetNonce();
+            var nonceAccess = CryptoHelper.GetNonce();
+
+            var payload = new AbeAuthStepThree()
+            {
+                Nonce = nonce,
+                CtAbonent = await _abeDecorator.Encrypt(BitConverter.GetBytes(nonceAbonent), abonentAttr),
+                CtAccess = await _abeDecorator.Encrypt(BitConverter.GetBytes(nonceAccess), accessPolicy),
+                NonceHash = CryptoHelper.ComputeHash($"{nonce}{nonceAbonent}{nonceAccess}")
+            };
+            var res = _serializer.Serialize<AbeAuthStepThree>(payload);
+
+            return (res, nonceAbonent, nonceAccess);
+        }
+
+        public async Task<byte[]> BuildStepFour(int nonceAbonent,int nonceAccess)
+        {
+            var payload = new AbeAuthStepFour()
+            {
+                NonceHash = CryptoHelper.ComputeHash($"{nonceAbonent}{nonceAccess}")
+            };
+            var res = _serializer.Serialize<AbeAuthStepFour>(payload);
+            return res;
+        }
     }
 }

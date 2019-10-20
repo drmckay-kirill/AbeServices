@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Linq;
+using System.Net.Http;
 using AbeServices.Common.Models.Mock;
 using AbeServices.Common.Protocols;
 using AbeServices.Common.Helpers;
 using AbeServices.Common.Models.Protocols;
-using System.Net.Http;
 
 namespace AbeServices.DeviceEmulator
 {
@@ -20,9 +21,11 @@ namespace AbeServices.DeviceEmulator
 
         static async Task TestAbeAuth()
         {
+            // Initialization
             HttpClient client = new HttpClient();
-                   
-            string[] tgsAttr = new string[] { "token", "service" };
+            const string SessionHeader = "X-Session";
+
+            string[] tgsAttr = new string[] { "iot", "sgt" };
             
             string abonentKey = "b14ca5898a4e4133bbce2ea2315a1916";
             string abonent = "device_emulator";
@@ -37,21 +40,45 @@ namespace AbeServices.DeviceEmulator
             string keyServiceUrl = "http://localhost:5000/api/keys";
             
             var decorator = AbeDecorator.Factory.Create(abonentKey, abonent, keyService, authority, abonentAttributes, keyServiceUrl);
+            await decorator.Setup();
             var builder = new AbeAuthBuilder(new ProtobufDataSerializer(), decorator);
             
+            // FIWARE Context Broker request
             var initRequest = new byte[] { 0 }; // TODO replace to FIWARE NGSI
 
+            // Request to IoTA to get access policy
             var stepOneResponse = await client.PostAsync(iotaUrl, new ByteArrayContent(initRequest));
             Console.WriteLine($"First step Http response status code = {stepOneResponse.StatusCode}");
+            
+            // Reading response from IoTA
             var stepOneData = await stepOneResponse.Content.ReadAsByteArrayAsync();
             var stepOne = builder.GetStepData<AbeAuthStepOne>(stepOneData);
             Console.WriteLine($"Access policy: {String.Join(" ", stepOne.AccessPolicy)}");
 
+            // First request to TGS to start Token Generation Procedure
             var (stepTwoData, nonceR1) = await builder.BuildStepTwo(stepOne.AccessPolicy, abonentAttributes, tgsAttr, stepOne.Z);
             var stepTwoRequest = new ByteArrayContent(stepTwoData);
             var stepTwoResponse = await client.PostAsync(tgsUrl, stepTwoRequest);
-            Console.WriteLine($"Second step Http response status code = {stepTwoResponse.StatusCode}");
+            Console.WriteLine($"Second step, http response from TGS status code = {stepTwoResponse.StatusCode}");
 
+            // Reading first response from TGS
+            var stepThreeData = await stepTwoResponse.Content.ReadAsByteArrayAsync();
+            var stepThree = builder.GetStepData<AbeAuthStepThree>(stepThreeData);
+            var tgsSessionId = stepTwoResponse.Headers.GetValues(SessionHeader).First();
+
+            // Second request to TGS to confirm nonce values
+            var abonentNonceBytes = await decorator.Decrypt(stepThree.CtAbonent);
+            var abonentNonce = BitConverter.ToInt32(abonentNonceBytes);
+            var accesNonceBytes = await decorator.Decrypt(stepThree.CtAccess);
+            var accessNonce = BitConverter.ToInt32(accesNonceBytes);
+            var stepFourData = await builder.BuildStepFour(abonentNonce, accessNonce);
+            var stepFourRequest = new ByteArrayContent(stepFourData);
+            stepFourRequest.Headers.Add(SessionHeader, tgsSessionId);
+            var stepFourResponse = await client.PostAsync(tgsUrl, stepFourRequest);
+            Console.WriteLine($"Fourth step, http response from TGS status code = {stepFourResponse.StatusCode}");
+
+            // Reading second response from TGS
+            
         }
 
         static async Task TestKeyDistributionService()

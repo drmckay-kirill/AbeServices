@@ -1,9 +1,10 @@
+using System;
 using System.Threading.Tasks;
 
 namespace AbeServices.TokenGeneration.Services
 {
     public interface ITokensService
     {
-         Task ProcessTokenRequest(byte[] requestData);
+        Task<(byte[], string)> ProcessTokenRequest(byte[] requestData, string inputSessionId);
     }
 }
