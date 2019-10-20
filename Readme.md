@@ -45,8 +45,9 @@
 - sessions in tgs **DONE**
 - process second step in tgs **DONE**
 - send third step from abonent to tgs **DONE**
-- process third step in tgs
-- send fourth step from abonent to iota
-- process fourth step
+- process third step in tgs **DONE**
+- send fourth step from abonent to iota **DONE**
+- process fourth step **DONE**
+- simple request to fiware context broker
 - send data to iota
 - proxy data to fiware context broker

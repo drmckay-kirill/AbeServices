@@ -10,7 +10,9 @@ namespace AbeServices.IoTA.Models
 
         public AbeAuthSteps ProtocolStep { get; set; }
         
-        public string SharedKey { get; set; }
+        public byte[] Z { get; set; }
+
+        public byte[] SharedKey { get; set; }
 
         public Session()
         {

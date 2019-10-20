@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Http;
@@ -24,8 +25,10 @@ namespace AbeServices.IoTA.Filters
             context.HttpContext.Request.Headers.TryGetValue(SessionHeader, out var sessionIdValue);
             var sessionIdParam = sessionIdValue.Count > 0 ? sessionIdValue[0] : null;
 
+            // get hmac from header
+
             context.HttpContext.Request.EnableBuffering();
-            var bodyLength = (int)context.HttpContext.Request.Body.Length;
+            var bodyLength = (int)context.HttpContext.Request.ContentLength;
             var body = new byte[bodyLength];
             await context.HttpContext.Request.Body.ReadAsync(body, 0, bodyLength);
 

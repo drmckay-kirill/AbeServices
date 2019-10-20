@@ -6,6 +6,7 @@ using AbeServices.Common.Models.Mock;
 using AbeServices.Common.Protocols;
 using AbeServices.Common.Helpers;
 using AbeServices.Common.Models.Protocols;
+using AbeServices.Common.Exceptions;
 
 namespace AbeServices.DeviceEmulator
 {
@@ -45,7 +46,7 @@ namespace AbeServices.DeviceEmulator
             var builder = new AbeAuthBuilder(new ProtobufDataSerializer(), decorator, encryptor);
             
             // Init request to start AbeAuth protocol -> any data without session
-            var initRequest = new byte[] { 0 };
+            var initRequest = new byte[] { 1 };
 
             // Request to IoTA to get access policy
             var stepOneResponse = await client.PostAsync(iotaUrl, new ByteArrayContent(initRequest));
@@ -54,6 +55,7 @@ namespace AbeServices.DeviceEmulator
             // Reading response from IoTA
             var stepOneData = await stepOneResponse.Content.ReadAsByteArrayAsync();
             var stepOne = builder.GetStepData<AbeAuthStepOne>(stepOneData);
+            var iotaSessionId = stepOneResponse.Headers.GetValues(SessionHeader).First();
             Console.WriteLine($"Access policy: {String.Join(" ", stepOne.AccessPolicy)}");
 
             // First request to TGS to start Token Generation Procedure
@@ -83,6 +85,22 @@ namespace AbeServices.DeviceEmulator
             var stepFive = builder.GetStepData<AbeAuthStepFive>(stepFiveData);
 
             // Send final request to IoTA
+            var sharedKey = await decorator.Decrypt(stepFive.CtAbonent);
+            var (stepSixData, hmac) = builder.BuildStepSix(stepFive.CtPep, stepFive.Z, sharedKey);           
+            Console.WriteLine($"Final protocol step length: {stepSixData.Length}");
+            var stepSixRequest = new ByteArrayContent(stepSixData);
+            stepSixRequest.Headers.Add(SessionHeader, iotaSessionId);
+            var stepSixResponse = await client.PostAsync(iotaUrl, stepSixRequest);
+            Console.WriteLine($"Second request to IoTA http status code: {stepSixResponse.StatusCode}");
+
+            // Read final response from IoTA
+            var stepSevenData = await stepSixResponse.Content.ReadAsByteArrayAsync();
+            var stepSeven = builder.GetStepData<AbeAuthStepSeven>(stepSevenData);
+            var iotaHMAC = CryptoHelper.ComputeHash(hmac, sharedKey);
+            if (!iotaHMAC.SequenceEqual(stepSeven.HMAC))
+                throw new ProtocolArgumentException("HMAC is incorrect!");
+
+            // send request with hmac and sessionId in header
         }
 
         static async Task TestKeyDistributionService()

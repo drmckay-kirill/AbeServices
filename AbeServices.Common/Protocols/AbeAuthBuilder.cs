@@ -25,7 +25,7 @@ namespace AbeServices.Common.Protocols
             return _serializer.Deserialize<T>(data);
         }
 
-        public byte[] BuildStepOne(string[] accessPolicy, string sharedKey)
+        public (byte[], byte[]) BuildStepOne(string[] accessPolicy, string sharedKey)
         {
             var hash = CryptoHelper.ComputeHash($"{string.Join("", accessPolicy)}{sharedKey}");
             var payload = new AbeAuthStepOne()
@@ -33,7 +33,7 @@ namespace AbeServices.Common.Protocols
                 AccessPolicy = accessPolicy,
                 Z = hash
             };
-            return _serializer.Serialize<AbeAuthStepOne>(payload);
+            return (_serializer.Serialize<AbeAuthStepOne>(payload), hash);
         }
 
         public async Task<(byte[], int)> BuildStepTwo(string[] accessPolicy, string[] abonentAttr, string[] tgsAttr, byte[] Z)
@@ -96,6 +96,28 @@ namespace AbeServices.Common.Protocols
                 Z = Z
             };
             var res = _serializer.Serialize<AbeAuthStepFive>(payload);
+            return res;
+        }
+
+        public (byte[], byte[]) BuildStepSix(byte[] accessToken, byte[] Z, byte[] sharedKey)
+        {
+            var hmac = CryptoHelper.ComputeHash(Z, sharedKey);
+            var payload = new AbeAuthStepSix()
+            {
+                CtPep = accessToken,
+                HMAC = hmac
+            };
+            var res = _serializer.Serialize<AbeAuthStepSix>(payload);
+            return (res, hmac);
+        }
+
+        public byte[] BuildStepSeven(byte[] prevHMAC, byte[] sharedKey)
+        {
+            var payload = new AbeAuthStepSeven()
+            {
+                HMAC = CryptoHelper.ComputeHash(prevHMAC, sharedKey)
+            };
+            var res = _serializer.Serialize<AbeAuthStepSeven>(payload);
             return res;
         }
     }
