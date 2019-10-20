@@ -8,12 +8,16 @@ namespace AbeServices.Common.Protocols
     public class AbeAuthBuilder : IAbeAuthBuilder
     {
         private readonly IDataSerializer _serializer;
+        private readonly IDataSymmetricEncryptor _encryptor;
         private readonly IAbeDecorator _abeDecorator;
 
-        public AbeAuthBuilder(IDataSerializer serializer, IAbeDecorator abeDecorator)
+        public AbeAuthBuilder(IDataSerializer serializer, 
+            IAbeDecorator abeDecorator,
+            IDataSymmetricEncryptor encryptor)
         {
             _serializer = serializer;
             _abeDecorator = abeDecorator;
+            _encryptor = encryptor;
         }
 
         public T GetStepData<T>(byte[] data)
@@ -77,6 +81,21 @@ namespace AbeServices.Common.Protocols
                 NonceHash = CryptoHelper.ComputeHash($"{nonceAbonent}{nonceAccess}")
             };
             var res = _serializer.Serialize<AbeAuthStepFour>(payload);
+            return res;
+        }
+
+        public async Task<byte[]> BuildStepFive(string[] abonentAttr, string sharedKey, byte[] Z)
+        {
+            var privateKey = _encryptor.GenerateKey();
+            _encryptor.SetKey(sharedKey);
+
+            var payload = new AbeAuthStepFive()
+            {
+                CtAbonent = await _abeDecorator.Encrypt(privateKey, abonentAttr),
+                CtPep = _encryptor.Encrypt(privateKey),
+                Z = Z
+            };
+            var res = _serializer.Serialize<AbeAuthStepFive>(payload);
             return res;
         }
     }

@@ -11,5 +11,6 @@ namespace AbeServices.TokenGeneration.Models
         public int Nonce2 { get; set; }
         public int Nonce3 { get; set; }
         public byte[] HMAC { get; set; }
+        public bool IsProcessed { get; set; }
     }
 }

@@ -10,5 +10,7 @@ namespace AbeServices.Common.Protocols
         Task<(byte[], int)> BuildStepTwo(string[] accessPolicy, string[] abonentAttr, string[] tgsAttr, byte[] Z);
         Task<(byte[], int, int)> BuildStepThree(string[] accessPolicy, string[] abonentAttr, int nonce);
         Task<byte[]> BuildStepFour(int nonceAbonent,int nonceAccess);
+
+        Task<byte[]> BuildStepFive(string[] abonentAttr, string sharedKey, byte[] Z);
     }
 }

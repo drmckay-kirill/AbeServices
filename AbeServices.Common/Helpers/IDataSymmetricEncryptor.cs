@@ -7,5 +7,6 @@ namespace AbeServices.Common.Helpers
         string DecryptToString(byte[] cipherText);
         byte[] Encrypt(byte[] plainText);
         byte[] Decrypt(byte[] cipherText);
+        byte[] GenerateKey();
     }
 }

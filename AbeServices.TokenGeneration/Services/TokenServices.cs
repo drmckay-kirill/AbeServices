@@ -63,6 +63,25 @@ namespace AbeServices.TokenGeneration.Services
                 sessions.Add(session);
                 return (protocolStep, session.Id.ToString());
             }
+            else
+            {
+                if (!session.IsProcessed)
+                {
+                    var request = _abeAuthBuilder.GetStepData<AbeAuthStepFour>(requestData);
+                    
+                    var nonceHash = CryptoHelper.ComputeHash($"{session.Nonce2}{session.Nonce3}");
+                    if (!nonceHash.SequenceEqual(request.NonceHash))
+                        throw new ProtocolArgumentException("Nonce hash in incorrect!");
+
+                    var protocolStep = await _abeAuthBuilder.BuildStepFive(
+                            session.AbonentAttributes,
+                            _options.Value.IoTASharedKey,
+                            session.HMAC);
+
+                    session.IsProcessed = true;
+                    return (protocolStep, session.Id.ToString());
+                }
+            }
 
             return (null, "");
         }

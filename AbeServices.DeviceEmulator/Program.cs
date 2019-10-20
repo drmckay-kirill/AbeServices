@@ -41,10 +41,11 @@ namespace AbeServices.DeviceEmulator
             
             var decorator = AbeDecorator.Factory.Create(abonentKey, abonent, keyService, authority, abonentAttributes, keyServiceUrl);
             await decorator.Setup();
-            var builder = new AbeAuthBuilder(new ProtobufDataSerializer(), decorator);
+            var encryptor = new DataSymmetricEncryption();
+            var builder = new AbeAuthBuilder(new ProtobufDataSerializer(), decorator, encryptor);
             
-            // FIWARE Context Broker request
-            var initRequest = new byte[] { 0 }; // TODO replace to FIWARE NGSI
+            // Init request to start AbeAuth protocol -> any data without session
+            var initRequest = new byte[] { 0 };
 
             // Request to IoTA to get access policy
             var stepOneResponse = await client.PostAsync(iotaUrl, new ByteArrayContent(initRequest));
@@ -78,7 +79,10 @@ namespace AbeServices.DeviceEmulator
             Console.WriteLine($"Fourth step, http response from TGS status code = {stepFourResponse.StatusCode}");
 
             // Reading second response from TGS
-            
+            var stepFiveData = await stepFourResponse.Content.ReadAsByteArrayAsync();
+            var stepFive = builder.GetStepData<AbeAuthStepFive>(stepFiveData);
+
+            // Send final request to IoTA
         }
 
         static async Task TestKeyDistributionService()

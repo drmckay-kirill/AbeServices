@@ -37,10 +37,7 @@ namespace AbeServices.Common.Helpers
             byte[] iv = new byte[16];
             using (var aes = Aes.Create())
             {
-                aes.KeySize = 128;
-                aes.BlockSize = 128;
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.Zeros;
+                Configure(aes);
 
                 aes.Key = Encoding.UTF8.GetBytes(_key);
                 aes.IV = iv;
@@ -66,10 +63,7 @@ namespace AbeServices.Common.Helpers
             byte[] iv = new byte[16];
             using (var aes = Aes.Create())
             {
-                aes.KeySize = 128;
-                aes.BlockSize = 128;
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.Zeros;
+                Configure(aes);
 
                 aes.Key = Encoding.UTF8.GetBytes(_key);
                 aes.IV = iv;
@@ -88,6 +82,24 @@ namespace AbeServices.Common.Helpers
                     }
                 }
             }  
-        }  
+        } 
+
+        public byte[] GenerateKey()
+        {
+            using (var aes = Aes.Create())
+            {
+                Configure(aes);
+                aes.GenerateKey();
+                return aes.Key;
+            }
+        }
+
+        private void Configure(Aes aes)
+        {
+            aes.KeySize = 128;
+            aes.BlockSize = 128;
+            aes.Mode = CipherMode.CBC;
+            aes.Padding = PaddingMode.Zeros;
+        } 
     }
 }
