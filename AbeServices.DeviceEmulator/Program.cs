@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Text;
 using System.Net.Http;
+using System.Text.Json;
 using AbeServices.Common.Models.Mock;
 using AbeServices.Common.Protocols;
 using AbeServices.Common.Helpers;
@@ -18,6 +20,33 @@ namespace AbeServices.DeviceEmulator
             //await TestKeyDistributionBuilder();
             //await TestKeyDistributionService();
             await TestAbeAuth();
+            //await TestFiwareCB();
+        }
+
+        static async Task TestFiwareCB()
+        {
+            var httpClient = new HttpClient();
+
+            string cbUrl = $"http://localhost:1026/v2/entities";
+            string entityName = "room1";
+            
+            var json = JsonSerializer.Serialize(new {
+                id = entityName,
+                type = "Room",
+                temperature = new {
+                    value = 21,
+                    type = "Float"
+                },
+                pressure = new {
+                    value = 711,
+                    type = "Integer"
+                }
+            });
+            Console.WriteLine(json);
+            
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync(cbUrl, content);
+            Console.WriteLine(response.StatusCode);
         }
 
         static async Task TestAbeAuth()

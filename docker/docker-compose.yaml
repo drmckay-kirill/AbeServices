@@ -4,9 +4,18 @@ volumes:
   vol-mongo-aa:
 
 services:
-  mongodb:
+  mongo:
     image: mongo:latest
     ports:
       - "27017:27017"
     volumes:
       - vol-mongo-aa:/data/db
+    command: --nojournal
+
+  orion:
+    image: fiware/orion
+    depends_on:
+      - mongo
+    ports:
+      - "1026:1026"
+    command: -dbhost mongo
