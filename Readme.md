@@ -8,9 +8,10 @@
 - exception handling with middleware (JSON)
 - add validation to Entity model
 - add Swagger
-- `FiwareController` to proxy data to Orion Context Broker with write access control
+- `FiwareController` to proxy data to Orion Context Broker with write access control **DONE**
 - `FiwareController` reads data from Orion Context Broker with read access control
 - authorization filter for `FiwareController` (use `FiwareService`) **DONE**
+- return errors from ContextBroker
 ## Key Service (for users or machines)
 - exception handling with middleware (JSON)
 - remove logic from controller to special service
@@ -53,4 +54,4 @@
 - process fourth step **DONE**
 - simple request to fiware context broker **DONE**
 - send data to iota **DONE**
-- proxy data to fiware context broker
+- proxy data to fiware context broker **DONE**

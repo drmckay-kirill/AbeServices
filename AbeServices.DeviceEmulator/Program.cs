@@ -131,7 +131,7 @@ namespace AbeServices.DeviceEmulator
                 throw new ProtocolArgumentException("HMAC is incorrect!");
 
             // Fiware request
-            var json = JsonSerializer.Serialize(new {
+            var jsonCreate = JsonSerializer.Serialize(new {
                 id = entityName,
                 type = "Science",
                 metric = new {
@@ -139,17 +139,38 @@ namespace AbeServices.DeviceEmulator
                     type = "Float"
                 }
             });
-            Console.WriteLine(json);
+            Console.WriteLine(jsonCreate);
 
-            // send request with hmac and sessionId in header
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var jsonPatch = JsonSerializer.Serialize(new {
+                metric = new {
+                    value = 32,
+                    type = "Float"
+                }
+            });
+            Console.WriteLine(jsonPatch);
+
+            // Send create request with hmac and sessionId in header
+            var content = new StringContent(jsonCreate, Encoding.UTF8, "application/json");
             var contentBytes = await content.ReadAsByteArrayAsync();
             content.Headers.Add(SessionHeader, iotaSessionId);
             var hmacString = Convert.ToBase64String(CryptoHelper.ComputeHash(contentBytes, sharedKey));
             Console.WriteLine(hmacString);
             content.Headers.Add(HmacHeader, hmacString);
             var response = await client.PostAsync(iotaUrl, content);
-            Console.WriteLine($"Fiware data response status code: {response.StatusCode}");
+            Console.WriteLine($"Fiware data create response status code: {response.StatusCode}");
+            var responseData = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseData);
+
+            // Send patch request
+            content = new StringContent(jsonPatch, Encoding.UTF8, "application/json");
+            contentBytes = await content.ReadAsByteArrayAsync();
+            content.Headers.Add(SessionHeader, iotaSessionId);
+            hmacString = Convert.ToBase64String(CryptoHelper.ComputeHash(contentBytes, sharedKey));
+            content.Headers.Add(HmacHeader, hmacString);
+            response = await client.PatchAsync(iotaUrl, content);
+            Console.WriteLine($"Fiware data edit response status code: {response.StatusCode}");
+            responseData = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseData);
         }
 
         static async Task TestKeyDistributionService()
