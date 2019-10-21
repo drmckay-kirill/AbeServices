@@ -1,4 +1,7 @@
 # TODO
+## Global refactoring
+- Store sessions (iota, tgs) in Redis/Tarantool/`etc NoSQL`
+- Session expiration feature
 ## TokenGenerationService
 - exception handling with middleware (JSON)
 ## IoTA
@@ -7,7 +10,7 @@
 - add Swagger
 - `FiwareController` to proxy data to Orion Context Broker with write access control
 - `FiwareController` reads data from Orion Context Broker with read access control
-- authorization filter for `FiwareController` (use `FiwareService`)
+- authorization filter for `FiwareController` (use `FiwareService`) **DONE**
 ## Key Service (for users or machines)
 - exception handling with middleware (JSON)
 - remove logic from controller to special service
@@ -48,6 +51,6 @@
 - process third step in tgs **DONE**
 - send fourth step from abonent to iota **DONE**
 - process fourth step **DONE**
-- simple request to fiware context broker
-- send data to iota
+- simple request to fiware context broker **DONE**
+- send data to iota **DONE**
 - proxy data to fiware context broker

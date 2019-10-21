@@ -54,6 +54,7 @@ namespace AbeServices.DeviceEmulator
             // Initialization
             HttpClient client = new HttpClient();
             const string SessionHeader = "X-Session";
+            const string HmacHeader = "X-HMAC";
 
             string[] tgsAttr = new string[] { "iot", "sgt" };
             
@@ -129,7 +130,26 @@ namespace AbeServices.DeviceEmulator
             if (!iotaHMAC.SequenceEqual(stepSeven.HMAC))
                 throw new ProtocolArgumentException("HMAC is incorrect!");
 
+            // Fiware request
+            var json = JsonSerializer.Serialize(new {
+                id = entityName,
+                type = "Science",
+                metric = new {
+                    value = 25,
+                    type = "Float"
+                }
+            });
+            Console.WriteLine(json);
+
             // send request with hmac and sessionId in header
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var contentBytes = await content.ReadAsByteArrayAsync();
+            content.Headers.Add(SessionHeader, iotaSessionId);
+            var hmacString = Convert.ToBase64String(CryptoHelper.ComputeHash(contentBytes, sharedKey));
+            Console.WriteLine(hmacString);
+            content.Headers.Add(HmacHeader, hmacString);
+            var response = await client.PostAsync(iotaUrl, content);
+            Console.WriteLine($"Fiware data response status code: {response.StatusCode}");
         }
 
         static async Task TestKeyDistributionService()

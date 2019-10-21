@@ -32,7 +32,7 @@ namespace AbeServices.IoTA.Services
             sessions = new List<Session>();
         }
 
-        public async Task<(byte[], Guid)> Authorize(string entityName, string sessionIdValue, byte[] body, bool read)
+        public async Task<(byte[], Guid)> Authorize(string entityName, string sessionIdValue, byte[] body, byte[] hmacHeader, bool read)
         {
             var sessionId = String.IsNullOrEmpty(sessionIdValue) 
                 ? Guid.Empty 
@@ -69,8 +69,13 @@ namespace AbeServices.IoTA.Services
                 }
                 else
                 {
-                    // check hmac from header
-                    // throw if need
+                    if (hmacHeader == null)
+                        throw new ProtocolArgumentException("Session hmac is null!");
+
+                    var correctHmac = CryptoHelper.ComputeHash(body, session.SharedKey);
+
+                    if (!correctHmac.SequenceEqual(hmacHeader))
+                        throw new ProtocolArgumentException("Session hmac is incorrect!");
                 }
             }
             
