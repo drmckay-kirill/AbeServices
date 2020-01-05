@@ -2,9 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AbeServices.Common\AbeServices.Common.csproj" />
+    <ProjectReference Include="..\AbeServices.AttributeAuthority\AbeServices.AttributeAuthority.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MongoDb.Driver" Version="2.9.1" />
     <PackageReference Include="protobuf-net" Version="2.4.0" />
   </ItemGroup>
 

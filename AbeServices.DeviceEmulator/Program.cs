@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Net.Http;
 using System.Text.Json;
+using MongoDB.Driver;
 using AbeServices.Common.Models.Mock;
 using AbeServices.Common.Protocols;
 using AbeServices.Common.Helpers;
 using AbeServices.Common.Models.Protocols;
 using AbeServices.Common.Exceptions;
+using AbeServices.AttributeAuthority.Models;
 
 namespace AbeServices.DeviceEmulator
 {
@@ -19,8 +21,27 @@ namespace AbeServices.DeviceEmulator
             //await TestMockCpabe("Test Mock CP-ABE");
             //await TestKeyDistributionBuilder();
             //await TestKeyDistributionService();
-            await TestAbeAuth();
+            //await TestAbeAuth();
             //await TestFiwareCB();
+            //await FillAttributesForTestRunner();
+        }
+
+        static async Task FillAttributesForTestRunner()
+        {
+            var client = new MongoClient("mongodb://localhost:27017");
+            var database = client.GetDatabase("AttributeAuthorityDb");
+            var logins = database.GetCollection<Login>("Logins");
+
+            string[] attrs = new string[50];
+            for(int i = 0; i < 50; i++)
+            {
+                string attrName = $"iot_{i+1}";
+                attrs[i] = attrName;
+            }
+
+            var filter = Builders<Login>.Filter.Eq("Login", "test_runner");
+            var update = Builders<Login>.Update.Set("Attributes", attrs);
+            await logins.UpdateOneAsync(filter, update);
         }
 
         static async Task TestFiwareCB()
