@@ -14,11 +14,14 @@ namespace TestRunner
 {
     class Program
     {
+        const int AttributesCount = 50; // 50
+
         static void Main(string[] args)
         {
             Console.WriteLine("Starting load testing of ABE services...");
             
-            KeyServiceScenario("sc1", 1, 5);
+            //KeyServiceScenario("sc1", 1, 5);
+            //KeyServiceScenario("sc2", 10, 5);
         }
 
         static void KeyServiceScenario(string prefix, int copies, int duration)
@@ -69,15 +72,15 @@ namespace TestRunner
 
         static List<string[]> GetTestRunnerAttrbutePackages()
         {
-            string[] attrs = new string[50];
-            for(int i = 0; i < 50; i++)
+            string[] attrs = new string[AttributesCount];
+            for(int i = 0; i < AttributesCount; i++)
             {
                 string attrName = $"iot_{i+1}";
                 attrs[i] = attrName;
             }
 
             var res = new List<string[]>();
-            for(int i = 0; i < 50; i++)
+            for(int i = 0; i < AttributesCount; i++)
             {
                 var attrsPackage = new string[i+1];
                 Array.Copy(attrs, 0, attrsPackage, 0, i + 1);
