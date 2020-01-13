@@ -12,6 +12,13 @@ services:
       - vol-mongo-aa:/data/db
     command: --nojournal
 
+  nginx:
+    image: nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - "./nginx.conf:/etc/nginx/nginx.conf"
+
   orion:
     image: fiware/orion
     depends_on:
