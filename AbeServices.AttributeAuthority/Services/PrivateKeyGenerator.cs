@@ -64,6 +64,9 @@ namespace AbeServices.AttributeAuthority.Services
             if (!abonentPayload.Attributes.SequenceEqual(servicePayload.Attributes))
                 throw new ProtocolArgumentException("Incorrect attributes");
 
+            // Console.WriteLine(String.Join(" ", abonentPayload.Attributes));
+            // Console.WriteLine(String.Join(" ", abonent.Attributes));
+
             if (abonentPayload.Attributes
                 .Where(attr => !abonent.Attributes.Contains(attr))
                 .Any())

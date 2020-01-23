@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using System.Net.Http;
 using System.Text.Json;
@@ -24,6 +25,62 @@ namespace AbeServices.DeviceEmulator
             //await TestAbeAuth();
             //await TestFiwareCB();
             //await FillAttributesForTestRunner();
+            await CreateTestEntities();
+        }
+
+        static async Task CreateTestEntities()
+        {
+            string abonentKey = "b14ca5898a4e4133bbce2ea2315a1916";
+            string cbUrl = $"http://localhost:5010/api/entities";
+            var httpClient = new HttpClient();
+            var testRunnerData = GetTestRunnerAttrbutePackages();
+            
+            var client = new MongoClient("mongodb://localhost:27017");
+            var database = client.GetDatabase("AttributeAuthorityDb");
+            var logins = database.GetCollection<Login>("Logins");
+
+            foreach(var attrsData in testRunnerData)
+            {
+                string entityName = $"testEntity_{attrsData.Length}";
+                
+                var json = JsonSerializer.Serialize(new {
+                    Name = entityName,
+                    ReadAttributes = attrsData,
+                    WriteAttributes = attrsData
+                });
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync(cbUrl, content);
+                Console.WriteLine(response.StatusCode);
+
+                await logins.InsertOneAsync(new Login()
+                {
+                    Name = entityName,
+                    SharedKey = abonentKey,
+                    Attributes = attrsData,
+                    KeyEvents = null
+                });
+            }
+        }
+
+        static List<string[]> GetTestRunnerAttrbutePackages()
+        {
+            string[] attrs = new string[50];
+            for(int i = 0; i < 50; i++)
+            {
+                string attrName = $"iot_{i+1}";
+                attrs[i] = attrName;
+            }
+
+            var res = new List<string[]>();
+            for(int i = 0; i < 50; i++)
+            {
+                var attrsPackage = new string[i+1];
+                Array.Copy(attrs, 0, attrsPackage, 0, i + 1);
+                res.Add(attrsPackage);
+            }
+
+            return res;
         }
 
         static async Task FillAttributesForTestRunner()

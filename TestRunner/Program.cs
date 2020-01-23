@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Linq;
+using System.Text.Json;
 using AbeServices.Common.Models.Mock;
 using AbeServices.Common.Protocols;
 using AbeServices.Common.Helpers;
@@ -45,9 +46,9 @@ namespace TestRunner
                     string[] tgsAttr = new string[] { "iot", "sgt" };
                     
                     string abonentKey = "b14ca5898a4e4133bbce2ea2315a1916";
-                    string abonent = "device_emulator";
-                    string[] abonentAttributes = new string[] { "teapot", "iot", "science" };
-                    string entityName = "teapot2";
+                    string abonent = $"testEntity_{attrsData.Length}";
+                    var abonentAttributes = attrsData;
+                    string entityName = $"testEntity_{attrsData.Length}";
                 
                     string keyService = "MachineService";
                     string authority = "AttributeAuthority";
