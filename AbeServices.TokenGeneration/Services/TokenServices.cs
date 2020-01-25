@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Options;
@@ -17,16 +18,23 @@ namespace AbeServices.TokenGeneration.Services
         private readonly IAbeAuthBuilder _abeAuthBuilder;
         private readonly IAbeDecorator _abeDecorator;
         private readonly IOptions<MainSettings> _options;
-        private List<Session> sessions;
+        private readonly IOptions<DatabaseSettings> _dbOptions;
+        private readonly IMongoCollection<Session> _sessions;
+
 
         public TokensService(IAbeAuthBuilder abeAuthBuilder, 
             IAbeDecorator abeDecorator,
-            IOptions<MainSettings> options)
+            IOptions<MainSettings> options,
+            IOptions<DatabaseSettings> dbOptions)
         {
             _abeAuthBuilder = abeAuthBuilder;
             _abeDecorator = abeDecorator;
             _options = options;
-            sessions = new List<Session>();
+            _dbOptions = dbOptions;
+
+            var client = new MongoClient(_dbOptions.Value.ConnectionString);
+            var database = client.GetDatabase(_dbOptions.Value.DatabaseName);
+            _sessions = database.GetCollection<Session>("sessions");
         }
 
         public async Task<(byte[], string)> ProcessTokenRequest(byte[] requestData, string inputSessionId)
@@ -34,7 +42,9 @@ namespace AbeServices.TokenGeneration.Services
             Guid sessionId = String.IsNullOrEmpty(inputSessionId) 
                 ? Guid.Empty 
                 : Guid.Parse(inputSessionId);
-            var session = sessions.Find(x => x.Id == sessionId);
+            var session = await _sessions
+                .Find(x => x.Id == sessionId)
+                .FirstOrDefaultAsync();
 
             if (session == null)
             {
@@ -60,7 +70,7 @@ namespace AbeServices.TokenGeneration.Services
                     Nonce3 = nonceAccess,
                     HMAC = Z
                 };
-                sessions.Add(session);
+                await _sessions.InsertOneAsync(session);
                 return (protocolStep, session.Id.ToString());
             }
             else
@@ -79,6 +89,11 @@ namespace AbeServices.TokenGeneration.Services
                             session.HMAC);
 
                     session.IsProcessed = true;
+
+                    var filter = Builders<Session>.Filter.Eq("Id", session.Id);
+                    var update = Builders<Session>.Update.Set("IsProcessed", true);
+                    await _sessions.UpdateOneAsync(filter, update);
+
                     return (protocolStep, session.Id.ToString());
                 }
             }

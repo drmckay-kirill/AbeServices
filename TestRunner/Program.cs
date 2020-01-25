@@ -25,7 +25,7 @@ namespace TestRunner
             //KeyServiceScenario("sc1", 1, 5);
             //KeyServiceScenario("sc2", 10, 5);
 
-            ProtocolScenario("prot5", 5, 15);
+            ProtocolScenario("prot1", 1, 10);
         }
 
         static void ProtocolScenario(string prefix, int copies, int duration)

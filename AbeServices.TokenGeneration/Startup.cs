@@ -22,6 +22,7 @@ namespace AbeServices.TokenGeneration
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<DatabaseSettings>(Configuration.GetSection("Database"));
             services.Configure<MainSettings>(Configuration.GetSection("Main"));
             services.Configure<AbeSettings>(Configuration.GetSection("AbeSettings"));
 
