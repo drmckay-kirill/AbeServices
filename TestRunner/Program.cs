@@ -25,7 +25,7 @@ namespace TestRunner
             //KeyServiceScenario("sc1", 1, 5);
             //KeyServiceScenario("sc2", 10, 5);
 
-            ProtocolScenario("protocol1", 1, 5);
+            ProtocolScenario("prot5", 5, 15);
         }
 
         static void ProtocolScenario(string prefix, int copies, int duration)
@@ -33,94 +33,102 @@ namespace TestRunner
             var testRunnerData = GetTestRunnerAttrbutePackages();
             foreach(var attrsData in testRunnerData)
             {
-                var scenarionName = $"{prefix}_scenario_{attrsData.Length}";
-                var stepName = $"{prefix}_step_{attrsData.Length}";
+                var scenarios = new List<Scenario>();
 
-                var step = Step.Create(stepName, async context =>
+                for (int i = 1; i <= copies; i++)
                 {
-                    // Initialization
-                    HttpClient client = new HttpClient();
-                    const string SessionHeader = "X-Session";
-                    const string HmacHeader = "X-HMAC";
+                    var scenarionName = $"{prefix}_scenario_{i}_{attrsData.Length}";
+                    var stepName = $"{prefix}_step_{attrsData.Length}";
 
-                    string[] tgsAttr = new string[] { "iot", "sgt" };
+                    var step = Step.Create(stepName, async context =>
+                    {
+                        // Initialization
+                        HttpClient client = new HttpClient();
+                        const string SessionHeader = "X-Session";
+                        const string HmacHeader = "X-HMAC";
+
+                        string[] tgsAttr = new string[] { "iot", "sgt" };
+                        
+                        string abonentKey = "b14ca5898a4e4133bbce2ea2315a1916";
+                        string abonent = $"testEntity_{attrsData.Length}";
+                        var abonentAttributes = attrsData;
+                        string entityName = $"testEntity_{attrsData.Length}";
                     
-                    string abonentKey = "b14ca5898a4e4133bbce2ea2315a1916";
-                    string abonent = $"testEntity_{attrsData.Length}";
-                    var abonentAttributes = attrsData;
-                    string entityName = $"testEntity_{attrsData.Length}";
-                
-                    string keyService = "MachineService";
-                    string authority = "AttributeAuthority";
+                        string keyService = "MachineService";
+                        string authority = "AttributeAuthority";
 
-                    string tgsUrl = "http://localhost:5011/api/tokens";
-                    string iotaUrl = $"http://localhost:5010/api/fiware/{entityName}";
-                    string keyServiceUrl = "http://localhost:5000/api/keys";
+                        string tgsUrl = "http://localhost:5011/api/tokens";
+                        string iotaUrl = $"http://localhost:5010/api/fiware/{entityName}";
+                        string keyServiceUrl = "http://localhost:5000/api/keys";
 
-                    var decorator = AbeDecorator.Factory.Create(abonentKey, abonent, keyService, authority, abonentAttributes, keyServiceUrl);
-                    await decorator.Setup();
-                    var encryptor = new DataSymmetricEncryption();
-                    var builder = new AbeAuthBuilder(new ProtobufDataSerializer(), decorator, encryptor);
+                        var decorator = AbeDecorator.Factory.Create(abonentKey, abonent, keyService, authority, abonentAttributes, keyServiceUrl);
+                        await decorator.Setup();
+                        var encryptor = new DataSymmetricEncryption();
+                        var builder = new AbeAuthBuilder(new ProtobufDataSerializer(), decorator, encryptor);
 
-                    // Init request to start AbeAuth protocol -> any data without session
-                    var initRequest = new byte[] { 1 };
+                        // Init request to start AbeAuth protocol -> any data without session
+                        var initRequest = new byte[] { 1 };
 
-                    // Request to IoTA to get access policy
-                    var stepOneResponse = await client.PostAsync(iotaUrl, new ByteArrayContent(initRequest));
-                    
-                    // Reading response from IoTA
-                    var stepOneData = await stepOneResponse.Content.ReadAsByteArrayAsync();
-                    var stepOne = builder.GetStepData<AbeAuthStepOne>(stepOneData);
-                    var iotaSessionId = stepOneResponse.Headers.GetValues(SessionHeader).First();
+                        // Request to IoTA to get access policy
+                        var stepOneResponse = await client.PostAsync(iotaUrl, new ByteArrayContent(initRequest));
+                        
+                        // Reading response from IoTA
+                        var stepOneData = await stepOneResponse.Content.ReadAsByteArrayAsync();
+                        var stepOne = builder.GetStepData<AbeAuthStepOne>(stepOneData);
+                        var iotaSessionId = stepOneResponse.Headers.GetValues(SessionHeader).First();
 
-                    // First request to TGS to start Token Generation Procedure
-                    var (stepTwoData, nonceR1) = await builder.BuildStepTwo(stepOne.AccessPolicy, abonentAttributes, tgsAttr, stepOne.Z);
-                    var stepTwoRequest = new ByteArrayContent(stepTwoData);
-                    var stepTwoResponse = await client.PostAsync(tgsUrl, stepTwoRequest);
+                        // First request to TGS to start Token Generation Procedure
+                        var (stepTwoData, nonceR1) = await builder.BuildStepTwo(stepOne.AccessPolicy, abonentAttributes, tgsAttr, stepOne.Z);
+                        var stepTwoRequest = new ByteArrayContent(stepTwoData);
+                        var stepTwoResponse = await client.PostAsync(tgsUrl, stepTwoRequest);
 
-                    // Reading first response from TGS
-                    var stepThreeData = await stepTwoResponse.Content.ReadAsByteArrayAsync();
-                    var stepThree = builder.GetStepData<AbeAuthStepThree>(stepThreeData);
-                    var tgsSessionId = stepTwoResponse.Headers.GetValues(SessionHeader).First();
+                        // Reading first response from TGS
+                        var stepThreeData = await stepTwoResponse.Content.ReadAsByteArrayAsync();
+                        var stepThree = builder.GetStepData<AbeAuthStepThree>(stepThreeData);
+                        var tgsSessionId = stepTwoResponse.Headers.GetValues(SessionHeader).First();
 
-                    // Second request to TGS to confirm nonce values
-                    var abonentNonceBytes = await decorator.Decrypt(stepThree.CtAbonent);
-                    var abonentNonce = BitConverter.ToInt32(abonentNonceBytes);
-                    var accesNonceBytes = await decorator.Decrypt(stepThree.CtAccess);
-                    var accessNonce = BitConverter.ToInt32(accesNonceBytes);
-                    var stepFourData = await builder.BuildStepFour(abonentNonce, accessNonce);
-                    var stepFourRequest = new ByteArrayContent(stepFourData);
-                    stepFourRequest.Headers.Add(SessionHeader, tgsSessionId);
-                    var stepFourResponse = await client.PostAsync(tgsUrl, stepFourRequest);
+                        // Second request to TGS to confirm nonce values
+                        var abonentNonceBytes = await decorator.Decrypt(stepThree.CtAbonent);
+                        var abonentNonce = BitConverter.ToInt32(abonentNonceBytes);
+                        var accesNonceBytes = await decorator.Decrypt(stepThree.CtAccess);
+                        var accessNonce = BitConverter.ToInt32(accesNonceBytes);
+                        var stepFourData = await builder.BuildStepFour(abonentNonce, accessNonce);
+                        var stepFourRequest = new ByteArrayContent(stepFourData);
+                        stepFourRequest.Headers.Add(SessionHeader, tgsSessionId);
+                        var stepFourResponse = await client.PostAsync(tgsUrl, stepFourRequest);
 
-                    // Reading second response from TGS
-                    var stepFiveData = await stepFourResponse.Content.ReadAsByteArrayAsync();
-                    var stepFive = builder.GetStepData<AbeAuthStepFive>(stepFiveData);
+                        // Reading second response from TGS
+                        var stepFiveData = await stepFourResponse.Content.ReadAsByteArrayAsync();
+                        var stepFive = builder.GetStepData<AbeAuthStepFive>(stepFiveData);
 
-                    // Send final request to IoTA
-                    var sharedKey = await decorator.Decrypt(stepFive.CtAbonent);
-                    var (stepSixData, hmac) = builder.BuildStepSix(stepFive.CtPep, stepFive.Z, sharedKey);           
-                    
-                    var stepSixRequest = new ByteArrayContent(stepSixData);
-                    stepSixRequest.Headers.Add(SessionHeader, iotaSessionId);
-                    var stepSixResponse = await client.PostAsync(iotaUrl, stepSixRequest);
-                    
-                    // Read final response from IoTA
-                    var stepSevenData = await stepSixResponse.Content.ReadAsByteArrayAsync();
-                    var stepSeven = builder.GetStepData<AbeAuthStepSeven>(stepSevenData);
-                    var iotaHMAC = CryptoHelper.ComputeHash(hmac, sharedKey);
-                    if (!iotaHMAC.SequenceEqual(stepSeven.HMAC))
-                        throw new ProtocolArgumentException("HMAC is incorrect!");
+                        // Send final request to IoTA
+                        var sharedKey = await decorator.Decrypt(stepFive.CtAbonent);
+                        var (stepSixData, hmac) = builder.BuildStepSix(stepFive.CtPep, stepFive.Z, sharedKey);           
+                        
+                        var stepSixRequest = new ByteArrayContent(stepSixData);
+                        stepSixRequest.Headers.Add(SessionHeader, iotaSessionId);
+                        var stepSixResponse = await client.PostAsync(iotaUrl, stepSixRequest);
+                        
+                        // Read final response from IoTA
+                        var stepSevenData = await stepSixResponse.Content.ReadAsByteArrayAsync();
+                        var stepSeven = builder.GetStepData<AbeAuthStepSeven>(stepSevenData);
+                        var iotaHMAC = CryptoHelper.ComputeHash(hmac, sharedKey);
+                        if (!iotaHMAC.SequenceEqual(stepSeven.HMAC))
+                            throw new ProtocolArgumentException("HMAC is incorrect!");
 
-                    return Response.Ok();
-                });
+                        return Response.Ok();
+                    });
 
-                var scenario = ScenarioBuilder
-                    .CreateScenario(scenarionName, new[] { step })
-                    .WithConcurrentCopies(copies)
-                    .WithDuration(TimeSpan.FromSeconds(duration));
+                    var scenario = ScenarioBuilder
+                        .CreateScenario(scenarionName, new[] { step })
+                        .WithConcurrentCopies(1)
+                        .WithDuration(TimeSpan.FromSeconds(duration));
+
+                    scenarios.Add(scenario);
+                }
+              
                 NBomberRunner
-                    .RegisterScenarios(scenario)
+                    .RegisterScenarios(scenarios.ToArray())
                     .RunTest();
             }
         }
