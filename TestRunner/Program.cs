@@ -16,7 +16,7 @@ namespace TestRunner
 {
     class Program
     {
-        const int AttributesCount = 50; // 50
+        const int AttributesCount = 20; // 50
 
         static void Main(string[] args)
         {
@@ -33,11 +33,7 @@ namespace TestRunner
             var testRunnerData = GetTestRunnerAttrbutePackages();
             foreach(var attrsData in testRunnerData)
             {
-                var scenarios = new List<Scenario>();
-
-                for (int i = 1; i <= copies; i++)
-                {
-                    var scenarionName = $"{prefix}_scenario_{i}_{attrsData.Length}";
+                    var scenarionName = $"{prefix}_scenario_{attrsData.Length}";
                     var stepName = $"{prefix}_step_{attrsData.Length}";
 
                     var step = Step.Create(stepName, async context =>
@@ -121,15 +117,12 @@ namespace TestRunner
 
                     var scenario = ScenarioBuilder
                         .CreateScenario(scenarionName, new[] { step })
-                        .WithConcurrentCopies(1)
+                        .WithConcurrentCopies(copies)
                         .WithDuration(TimeSpan.FromSeconds(duration));
-
-                    scenarios.Add(scenario);
-                }
               
-                NBomberRunner
-                    .RegisterScenarios(scenarios.ToArray())
-                    .RunTest();
+                    NBomberRunner
+                        .RegisterScenarios(scenario)
+                        .RunTest();
             }
         }
 
