@@ -6,7 +6,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MongoDb.Driver" Version="2.9.1" />
+    <PackageReference Include="MongoDb.Driver" Version="2.19.0" />
     <PackageReference Include="protobuf-net" Version="2.4.0" />
   </ItemGroup>
 
